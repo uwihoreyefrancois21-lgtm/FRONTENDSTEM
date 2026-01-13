@@ -14,6 +14,7 @@ import Register from './pages/Register';
 import Reports from './pages/Reports';
 import ResetPassword from './pages/ResetPassword';
 import Transactions from './pages/Transactions';
+import ProfileSettings from './pages/ProfileSettings';
 
 function App() {
   return (
@@ -85,6 +86,14 @@ function App() {
             <Route 
               path="*" 
               element={<Navigate to="/" replace />} 
+            />
+            <Route
+              path="/profile-settings"
+              element={
+                <ProtectedRoute>
+                  <ProfileSettings />
+                </ProtectedRoute>
+              }
             />
           </Routes>
         </div>

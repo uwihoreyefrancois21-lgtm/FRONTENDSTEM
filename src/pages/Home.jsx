@@ -2,52 +2,324 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const FeatureCard = ({ icon, title, description }) => (
-  <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-    <div className="text-primary-600 text-3xl mb-4">{icon}</div>
-    <h3 className="text-xl font-semibold mb-2">{title}</h3>
-    <p className="text-gray-600">{description}</p>
+  <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+    <div className="text-primary-600 text-4xl mb-5">{icon}</div>
+    <h3 className="text-xl font-bold mb-3 text-gray-800">{title}</h3>
+    <p className="text-gray-600 leading-relaxed">{description}</p>
+  </div>
+);
+
+const PricingCard = ({ plan, price, features, popular = false }) => (
+  <div className={`relative bg-white rounded-2xl shadow-xl overflow-hidden ${popular ? 'ring-2 ring-primary-500' : 'border border-gray-200'}`}>
+    {popular && (
+      <div className="absolute top-0 right-0 bg-primary-500 text-white text-xs font-bold px-4 py-1 transform translate-x-2 -translate-y-2 rounded-bl-lg">
+        POPULAR
+      </div>
+    )}
+    <div className="p-8">
+      <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan}</h3>
+      <div className="mb-6">
+        <span className="text-4xl font-extrabold text-gray-900">${price}</span>
+        <span className="text-gray-600">/month</span>
+      </div>
+      <ul className="space-y-3 mb-8">
+        {features.map((feature, index) => (
+          <li key={index} className="flex items-center">
+            <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-gray-700">{feature}</span>
+          </li>
+        ))}
+      </ul>
+      <button 
+        className={`w-full py-3 px-6 rounded-lg font-medium transition-colors duration-200 ${
+          popular 
+            ? 'bg-primary-600 hover:bg-primary-700 text-white' 
+            : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+        }`}
+      >
+        Get Started
+      </button>
+    </div>
   </div>
 );
 
 const Home = () => {
   const { user } = useAuth();
 
+  const features = [
+    {
+      icon: '📊',
+      title: 'Project Tracking',
+      description: 'Monitor all your projects in one place with real-time updates and progress tracking.'
+    },
+    {
+      icon: '💰',
+      title: 'Financial Management',
+      description: 'Track expenses, income, and overall project profitability with detailed financial reports.'
+    },
+    {
+      icon: '👥',
+      title: 'Team Collaboration',
+      description: 'Manage your team, assign tasks, and track worker contributions and payments.'
+    },
+    {
+      icon: '📈',
+      title: 'Analytics & Reports',
+      description: 'Generate comprehensive reports to analyze project performance and make data-driven decisions.'
+    }
+  ];
+
+  const pricingPlans = [
+    {
+      plan: 'Starter',
+      price: '10',
+      features: [
+        'Up to 5 active projects',
+        'Basic financial tracking',
+        'Email support',
+        'Basic reports',
+        '1 team member'
+      ]
+    },
+    {
+      plan: 'Professional',
+      price: '25',
+      popular: true,
+      features: [
+        'Unlimited projects',
+        'Advanced financial tracking',
+        'Priority support',
+        'Advanced analytics',
+        'Up to 5 team members',
+        'API access'
+      ]
+    },
+    {
+      plan: 'Enterprise',
+      price: 'Custom',
+      features: [
+        'Unlimited everything',
+        'Dedicated account manager',
+        '24/7 support',
+        'Custom integrations',
+        'Unlimited team members',
+        'On-premise deployment'
+      ]
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      {/* Hero Section */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center">
-          <div className="flex items-center
-          ">
-            <span className="text-2xl font-bold text-primary-600">SPEMS</span>
-            <span className="ml-2 text-sm bg-primary-100 text-primary-800 px-2 py-1 rounded-full">v1.0</span>
-          </div>
-          <nav className="hidden md:flex space-x-8">
-            <a href="#features" className="text-gray-700 hover:text-primary-600">Features</a>
-            <a href="#how-it-works" className="text-gray-700 hover:text-primary-600">How It Works</a>
-            <a href="#pricing" className="text-gray-700 hover:text-primary-600">Pricing</a>
-          </nav>
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <Link to="/dashboard" className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                Go to Dashboard
-              </Link>
-            ) : (
-              <>
-                <Link to="/login" className="text-gray-700 hover:text-primary-600">
-                  Sign In
-                </Link>
-                <Link to="/register" className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                  Get Started
-                </Link>
-              </>
-            )}
+      {/* Navigation */}
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center">
+              <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-blue-600 bg-clip-text text-transparent">
+                SPEMS
+              </span>
+              <span className="ml-2 text-xs bg-primary-100 text-primary-800 px-2 py-1 rounded-full font-medium">
+                v1.0
+              </span>
+            </div>
+            <nav className="hidden md:flex items-center space-x-8">
+              <a href="#features" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                Features
+              </a>
+              <a href="#how-it-works" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                How It Works
+              </a>
+              <a href="#pricing" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                Pricing
+              </a>
+            </nav>
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <>
+                  <Link 
+                    to="/dashboard" 
+                    className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
+                  >
+                    Go to Dashboard
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link 
+                    to="/login" 
+                    className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link 
+                    to="/register" 
+                    className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
       <main>
         {/* Hero Section */}
+        <section className="relative overflow-hidden bg-gradient-to-r from-primary-600 to-blue-600 text-white py-20 md:py-32">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSg0NSkiPjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]"></div>
+          </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center max-w-4xl mx-auto">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
+                Smart Project Earnings <br />
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-yellow-400">
+                  Management System
+                </span>
+              </h1>
+              <p className="text-xl md:text-2xl text-blue-100 mb-10 max-w-2xl mx-auto">
+                Take control of your projects, track expenses, and maximize profits with our all-in-one project management solution.
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <Link 
+                  to={user ? "/dashboard" : "/register"} 
+                  className="bg-white text-primary-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                >
+                  {user ? 'Go to Dashboard' : 'Start Free Trial'}
+                </Link>
+                <a 
+                  href="#pricing" 
+                  className="bg-transparent border-2 border-white text-white hover:bg-white hover:bg-opacity-10 px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300"
+                >
+                  View Pricing
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section id="features" className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Powerful Features</h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Everything you need to manage your projects and finances in one place
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {features.map((feature, index) => (
+                <FeatureCard 
+                  key={index}
+                  icon={feature.icon}
+                  title={feature.title}
+                  description={feature.description}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section id="how-it-works" className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Get started in minutes and take control of your projects today
+              </p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  number: '1',
+                  title: 'Create Your Account',
+                  description: 'Sign up for a free account and set up your profile in minutes.'
+                },
+                {
+                  number: '2',
+                  title: 'Add Your Projects',
+                  description: 'Create projects, add team members, and set up your budget.'
+                },
+                {
+                  number: '3',
+                  title: 'Track & Analyze',
+                  description: 'Monitor progress, track expenses, and analyze your project performance.'
+                }
+              ].map((step, index) => (
+                <div key={index} className="bg-white p-8 rounded-xl shadow-md text-center">
+                  <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 text-2xl font-bold mx-auto mb-6">
+                    {step.number}
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
+                  <p className="text-gray-600">{step.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section id="pricing" className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Simple, Transparent Pricing</h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Choose the perfect plan for your business needs
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {pricingPlans.map((plan, index) => (
+                <PricingCard 
+                  key={index}
+                  plan={plan.plan}
+                  price={plan.price}
+                  features={plan.features}
+                  popular={plan.popular}
+                />
+              ))}
+            </div>
+            <div className="mt-12 text-center">
+              <p className="text-gray-600 mb-6">Need a custom solution for your enterprise?</p>
+              <a 
+                href="#contact" 
+                className="text-primary-600 hover:text-primary-700 font-medium inline-flex items-center"
+              >
+                Contact Sales
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="bg-gradient-to-r from-primary-600 to-blue-600 text-white py-16">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to get started?</h2>
+            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+              Join thousands of businesses that trust SPEMS to manage their projects and finances.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Link 
+                to={user ? "/dashboard" : "/register"} 
+                className="bg-white text-primary-700 hover:bg-gray-100 px-8 py-3 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                {user ? 'Go to Dashboard' : 'Start Free Trial'}
+              </Link>
+              <a 
+                href="#features" 
+                className="bg-transparent border-2 border-white text-white hover:bg-white hover:bg-opacity-10 px-8 py-3 rounded-lg font-bold text-lg transition-all duration-300"
+              >
+                Learn More
+              </a>
+            </div>
+          </div>
+        </section>
         <section className="py-20 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">

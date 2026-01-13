@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { validateEmail, validatePassword, validatePhone } from '../utils/validation';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,7 @@ const Register = () => {
     password: '',
     phone: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [passwordValidation, setPasswordValidation] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -132,15 +134,25 @@ const Register = () => {
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
               Password *
             </label>
-            <input
-              type="password"
-              id="password"
-              required
-              value={formData.password}
-              onChange={(e) => handlePasswordChange(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="Enter strong password"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={formData.password}
+                onChange={(e) => handlePasswordChange(e.target.value)}
+                className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Create a strong password"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
+                tabIndex="-1"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
             {passwordValidation && (
               <div className="mt-2">
                 <div className="flex items-center mb-2">

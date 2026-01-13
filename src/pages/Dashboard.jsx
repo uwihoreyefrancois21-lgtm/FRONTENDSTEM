@@ -37,11 +37,19 @@ const Dashboard = () => {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">
-          Welcome back, {user?.username}! Overview of {user?.role === 'admin' ? 'all system data' : 'your projects and finances'}
-        </p>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600 mt-2">
+            Welcome back, {user?.username}! Overview of {user?.role === 'admin' ? 'all system data' : 'your projects and finances'}
+          </p>
+        </div>
+        <Link 
+          to="/profile-settings" 
+          className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+        >
+          Profile Settings
+        </Link>
       </div>
 
       {/* Stats Grid */}

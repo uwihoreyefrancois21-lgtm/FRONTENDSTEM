@@ -8,5 +8,6 @@ export const authService = {
   rejectUser: (userId) => api.post(`/auth/reject-user/${userId}`),
   forgotPassword: (email) => api.post('/auth/forgot-password', email),
   resetPassword: (data) => api.post('/auth/reset-password', data),
+  updatePassword: (data) => api.put('/auth/update-password', data),
 };
 

@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import { authService, userService } from '../services';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useAuth } from '../contexts/AuthContext';
+import { authService, userService } from '../services';
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, pending, approved
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchUsers();
@@ -88,8 +91,16 @@ const Admin = () => {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+          <Link 
+            to="/profile-settings" 
+            className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          >
+            Profile Settings
+          </Link>
+        </div>
         <p className="text-gray-600 mt-2">User Management - Manage system users, approve registrations</p>
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
           <p className="text-sm text-blue-800">

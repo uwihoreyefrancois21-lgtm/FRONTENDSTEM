@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { projectService, taskService, transactionService } from '../services';
 import { formatCurrency } from '../utils/format';
+import { toast } from 'react-toastify';
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -22,7 +23,12 @@ const ProjectDetail = () => {
     worker_phone: '',
     cost: '',
     task_date: new Date().toISOString().split('T')[0],
+    type: 'expense',
   });
+  const [taskMonthFilter, setTaskMonthFilter] = useState('');
+  const [taskYearFilter, setTaskYearFilter] = useState(new Date().getFullYear().toString());
+  const [transactionMonthFilter, setTransactionMonthFilter] = useState('');
+  const [transactionYearFilter, setTransactionYearFilter] = useState(new Date().getFullYear().toString());
   const [transactionFormData, setTransactionFormData] = useState({
     type: 'expense',
     amount: '',
@@ -41,14 +47,14 @@ const ProjectDetail = () => {
         setActiveTab(hash);
       }
     }
-  }, [id, location.hash]);
+  }, [id, location.hash, taskMonthFilter, taskYearFilter, transactionMonthFilter, transactionYearFilter]);
 
   const fetchProjectData = async () => {
     try {
       const [projectRes, tasksRes, transactionsRes] = await Promise.all([
         projectService.getById(id),
-        taskService.getAll(id),
-        transactionService.getAll(id),
+        taskService.getAll(id, taskMonthFilter || null, taskYearFilter || null),
+        transactionService.getAll(id, transactionMonthFilter || null, transactionYearFilter || null),
       ]);
 
       if (projectRes.success) setProject(projectRes.data.project);
@@ -65,9 +71,13 @@ const ProjectDetail = () => {
     e.preventDefault();
     try {
       if (editingTask) {
-        await taskService.update(editingTask.id, taskFormData);
+        const resp = await taskService.update(editingTask.id, { ...taskFormData, project_id: id });
+        if (!resp?.success) throw new Error(resp?.message || 'Failed to update task');
+        toast.success('Task updated successfully');
       } else {
-        await taskService.create({ ...taskFormData, project_id: id });
+        const resp = await taskService.create({ ...taskFormData, project_id: id });
+        if (!resp?.success) throw new Error(resp?.message || 'Failed to create task');
+        toast.success('Task created successfully');
       }
       setShowTaskModal(false);
       setEditingTask(null);
@@ -78,11 +88,12 @@ const ProjectDetail = () => {
         worker_phone: '',
         cost: '',
         task_date: new Date().toISOString().split('T')[0],
+        type: 'expense',
       });
-      fetchProjectData();
+      await fetchProjectData();
     } catch (error) {
       console.error('Failed to save task:', error);
-      alert('Failed to save task');
+      toast.error(error.response?.data?.message || error.message || 'Failed to save task');
     }
   };
 
@@ -119,6 +130,7 @@ const ProjectDetail = () => {
       worker_phone: task.worker_phone || '',
       cost: task.cost || '',
       task_date: task.task_date || new Date().toISOString().split('T')[0],
+      type: task.type || 'expense',
     });
     setShowTaskModal(true);
   };
@@ -222,16 +234,38 @@ const ProjectDetail = () => {
           </nav>
           {activeTab === 'tasks' && (
             <button
-              onClick={() => setShowTaskModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+              onClick={() => {
+                setEditingTask(null);
+                setTaskFormData({
+                  task_name: '',
+                  description: '',
+                  worker_name: '',
+                  worker_phone: '',
+                  cost: '',
+                  task_date: new Date().toISOString().split('T')[0],
+                  type: 'expense',
+                });
+                setShowTaskModal(true);
+              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md transition-colors"
             >
               + Add Task
             </button>
           )}
           {activeTab === 'transactions' && (
             <button
-              onClick={() => setShowTransactionModal(true)}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+              onClick={() => {
+                setEditingTransaction(null);
+                setTransactionFormData({
+                  type: 'expense',
+                  amount: '',
+                  description: '',
+                  transaction_date: new Date().toISOString().split('T')[0],
+                  task_id: '',
+                });
+                setShowTransactionModal(true);
+              }}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md transition-colors"
             >
               + Add Transaction
             </button>
@@ -263,13 +297,58 @@ const ProjectDetail = () => {
       {activeTab === 'tasks' && (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Tasks</h2>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Tasks</h2>
+              <div className="flex flex-wrap gap-3 items-center">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Month:</label>
+                  <select
+                    value={taskMonthFilter}
+                    onChange={(e) => {
+                      setTaskMonthFilter(e.target.value);
+                      setLoading(true);
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                  >
+                    <option value="">All Months</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Year:</label>
+                  <input
+                    type="number"
+                    value={taskYearFilter}
+                    onChange={(e) => {
+                      setTaskYearFilter(e.target.value);
+                      setLoading(true);
+                    }}
+                    min="2000"
+                    max="2100"
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm w-24"
+                    placeholder="Year"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
           <div className="overflow-x-auto -mx-4 sm:mx-0">
             <table className="w-full min-w-[700px]">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Task Name</th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">Description</th>
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Phone</th>
@@ -279,34 +358,62 @@ const ProjectDetail = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {tasks.map((task) => (
-                  <tr key={task.id}>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap font-medium">{task.task_name}</td>
-                    <td className="px-3 sm:px-6 py-4 text-sm text-gray-600 max-w-xs truncate hidden md:table-cell">{task.description || '-'}</td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">{task.worker_name || '-'}</td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">{task.worker_phone || '-'}</td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-red-600 font-medium">
-                      RWF {formatCurrency(task.cost)}
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm">{task.task_date}</td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={() => handleEditTask(task)}
-                        className="text-blue-600 hover:text-blue-900 mr-2 sm:mr-3 text-xs sm:text-sm"
-                        title="Edit"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteTask(task.id)}
-                        className="text-red-600 hover:text-red-900 text-xs sm:text-sm"
-                        title="Delete"
-                      >
-                        Delete
-                      </button>
+                {tasks.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
+                      No tasks found for the selected month.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  tasks.map((task) => (
+                    <tr key={task.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap font-medium text-gray-900">{task.task_name}</td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        {task.type ? (
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            task.type === 'income' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {task.type.charAt(0).toUpperCase() + task.type.slice(1)}
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                            Not Set
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 text-sm text-gray-600 max-w-xs truncate hidden md:table-cell">{task.description || '-'}</td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm">{task.worker_name || '-'}</td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm hidden lg:table-cell">{task.worker_phone || '-'}</td>
+                      <td className={`px-3 sm:px-6 py-4 whitespace-nowrap font-semibold ${
+                        task.type === 'income' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        RWF {formatCurrency(task.cost)}
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-600">{task.task_date || '-'}</td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleEditTask(task)}
+                            className="text-blue-600 hover:text-blue-900 font-medium text-xs sm:text-sm transition-colors"
+                            title="Edit"
+                          >
+                            Edit
+                          </button>
+                          <span className="text-gray-300">|</span>
+                          <button
+                            onClick={() => handleDeleteTask(task.id)}
+                            className="text-red-600 hover:text-red-900 font-medium text-xs sm:text-sm transition-colors"
+                            title="Delete"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -316,7 +423,51 @@ const ProjectDetail = () => {
       {activeTab === 'transactions' && (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Transactions</h2>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Transactions</h2>
+              <div className="flex flex-wrap gap-3 items-center">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Month:</label>
+                  <select
+                    value={transactionMonthFilter}
+                    onChange={(e) => {
+                      setTransactionMonthFilter(e.target.value);
+                      setLoading(true);
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                  >
+                    <option value="">All Months</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Year:</label>
+                  <input
+                    type="number"
+                    value={transactionYearFilter}
+                    onChange={(e) => {
+                      setTransactionYearFilter(e.target.value);
+                      setLoading(true);
+                    }}
+                    min="2000"
+                    max="2100"
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm w-24"
+                    placeholder="Year"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[500px]">
@@ -330,42 +481,53 @@ const ProjectDetail = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {transactions.map((transaction) => (
-                  <tr key={transaction.id}>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        transaction.type === 'income' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {transaction.type}
-                      </span>
-                    </td>
-                    <td className={`px-3 sm:px-6 py-4 whitespace-nowrap font-semibold ${
-                      transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      RWF {formatCurrency(transaction.amount)}
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 hidden sm:table-cell">{transaction.description}</td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm">{transaction.transaction_date}</td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={() => handleEditTransaction(transaction)}
-                        className="text-blue-600 hover:text-blue-900 mr-2 sm:mr-3 text-xs sm:text-sm"
-                        title="Edit"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteTransaction(transaction.id)}
-                        className="text-red-600 hover:text-red-900 text-xs sm:text-sm"
-                        title="Delete"
-                      >
-                        Delete
-                      </button>
+                {transactions.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                      No transactions found for the selected month.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  transactions.map((transaction) => (
+                    <tr key={transaction.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          transaction.type === 'income' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                        </span>
+                      </td>
+                      <td className={`px-3 sm:px-6 py-4 whitespace-nowrap font-semibold ${
+                        transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        RWF {formatCurrency(transaction.amount)}
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 text-sm text-gray-600 hidden sm:table-cell">{transaction.description || '-'}</td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-600">{transaction.transaction_date || '-'}</td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleEditTransaction(transaction)}
+                            className="text-blue-600 hover:text-blue-900 font-medium text-xs sm:text-sm transition-colors"
+                            title="Edit"
+                          >
+                            Edit
+                          </button>
+                          <span className="text-gray-300">|</span>
+                          <button
+                            onClick={() => handleDeleteTransaction(transaction.id)}
+                            className="text-red-600 hover:text-red-900 font-medium text-xs sm:text-sm transition-colors"
+                            title="Delete"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -374,11 +536,31 @@ const ProjectDetail = () => {
 
       {/* Add/Edit Task Modal */}
       {showTaskModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              {editingTask ? 'Edit Task' : 'Add Task'}
-            </h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 sm:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {editingTask ? 'Edit Task' : 'Add Task'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowTaskModal(false);
+                  setEditingTask(null);
+                  setTaskFormData({
+                    task_name: '',
+                    description: '',
+                    worker_name: '',
+                    worker_phone: '',
+                    cost: '',
+                    task_date: new Date().toISOString().split('T')[0],
+                    type: 'expense',
+                  });
+                }}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
             <form onSubmit={handleAddTask} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Task Name *</label>
@@ -418,14 +600,30 @@ const ProjectDetail = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Cost</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type *</label>
+                <select
+                  required
+                  value={taskFormData.type}
+                  onChange={(e) => setTaskFormData({ ...taskFormData, type: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="expense">Expense</option>
+                  <option value="income">Income</option>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">Select whether this task is an income or expense for the project</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Cost (RWF)</label>
                 <input
                   type="number"
                   step="0.01"
+                  min="0"
                   value={taskFormData.cost}
                   onChange={(e) => setTaskFormData({ ...taskFormData, cost: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  placeholder="0.00"
                 />
+                <p className="mt-1 text-xs text-gray-500">This amount will be added to project {taskFormData.type === 'income' ? 'income' : 'expense'}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
@@ -469,11 +667,29 @@ const ProjectDetail = () => {
 
       {/* Add/Edit Transaction Modal */}
       {showTransactionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              {editingTransaction ? 'Edit Transaction' : 'Add Transaction'}
-            </h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 sm:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {editingTransaction ? 'Edit Transaction' : 'Add Transaction'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowTransactionModal(false);
+                  setEditingTransaction(null);
+                  setTransactionFormData({
+                    type: 'expense',
+                    amount: '',
+                    description: '',
+                    transaction_date: new Date().toISOString().split('T')[0],
+                    task_id: '',
+                  });
+                }}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
             <form onSubmit={handleAddTransaction} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Type *</label>

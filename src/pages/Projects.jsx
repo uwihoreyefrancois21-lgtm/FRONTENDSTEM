@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { projectService } from '../services/projectService';
+import { toast } from 'react-toastify';
+import { projectService } from '../services';
 import { formatCurrency } from '../utils/format';
 
 const Projects = () => {
@@ -12,7 +13,7 @@ const Projects = () => {
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 3;
   const [editingProject, setEditingProject] = useState(null);
   const [formData, setFormData] = useState({
     project_name: '',
@@ -28,12 +29,21 @@ const Projects = () => {
   const fetchProjects = async () => {
     try {
       const response = await projectService.getAll();
-      if (response.success) {
-        setProjects(response.data.projects);
-        setFilteredProjects(response.data.projects);
+      if (response?.success) {
+        const list = response.data?.projects || [];
+        setProjects(list);
+        setFilteredProjects(list);
+        return;
       }
+
+      // If API wrapper changes or backend returns unexpected shape
+      const msg = response?.message || 'Failed to fetch projects';
+      throw new Error(msg);
     } catch (error) {
       console.error('Failed to fetch projects:', error);
+      toast.error(error.response?.data?.message || error.message || 'Failed to fetch projects');
+      setProjects([]);
+      setFilteredProjects([]);
     } finally {
       setLoading(false);
     }
@@ -59,13 +69,104 @@ const Projects = () => {
   const endIndex = startIndex + itemsPerPage;
   const currentProjects = filteredProjects.slice(startIndex, endIndex);
 
+  const goToPage = (page) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  };
+
+  const renderPagination = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    if (startPage > 1) {
+      pages.push(
+        <button
+          key={1}
+          onClick={() => goToPage(1)}
+          className={`px-3 py-1 rounded ${1 === currentPage ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        pages.push(<span key="start-ellipsis" className="px-2">...</span>);
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => goToPage(i)}
+          className={`px-3 py-1 rounded ${i === currentPage ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pages.push(<span key="end-ellipsis" className="px-2">...</span>);
+      }
+      pages.push(
+        <button
+          key={totalPages}
+          onClick={() => goToPage(totalPages)}
+          className={`px-3 py-1 rounded ${totalPages === currentPage ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-between mt-6">
+        <div className="text-sm text-gray-700">
+          Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+          <span className="font-medium">
+            {Math.min(endIndex, filteredProjects.length)}
+          </span>{' '}
+          of <span className="font-medium">{filteredProjects.length}</span> results
+        </div>
+        <div className="flex space-x-1">
+          <button
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 rounded bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          {pages}
+          <button
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages || totalPages === 0}
+            className="px-3 py-1 rounded bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (editingProject) {
-        await projectService.update(editingProject.id, formData);
+        const resp = await projectService.update(editingProject.id, formData);
+        if (!resp?.success) throw new Error(resp?.message || 'Failed to update project');
+        toast.success('Project updated successfully');
       } else {
-        await projectService.create(formData);
+        const resp = await projectService.create(formData);
+        if (!resp?.success) throw new Error(resp?.message || 'Failed to create project');
+        toast.success('Project created successfully');
       }
       setShowModal(false);
       setEditingProject(null);
@@ -73,7 +174,7 @@ const Projects = () => {
       fetchProjects();
     } catch (error) {
       console.error('Failed to save project:', error);
-      alert('Failed to save project');
+      toast.error(error.response?.data?.message || error.message || 'Failed to save project');
     }
   };
 
@@ -91,11 +192,13 @@ const Projects = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       try {
-        await projectService.delete(id);
+        const resp = await projectService.delete(id);
+        if (!resp?.success) throw new Error(resp?.message || 'Failed to delete project');
+        toast.success('Project deleted successfully');
         fetchProjects();
       } catch (error) {
         console.error('Failed to delete project:', error);
-        alert('Failed to delete project');
+        toast.error(error.response?.data?.message || error.message || 'Failed to delete project');
       }
     }
   };

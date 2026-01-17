@@ -1,8 +1,10 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import WhatsAppButton from './WhatsAppButton';
 
 const Layout = ({ children }) => {
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -69,14 +71,14 @@ const Layout = ({ children }) => {
                 </Link>
                 {isAdmin && (
                   <Link
-                    to="/admin"
+                    to="/user-management"
                     className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                      isActive('/admin') 
+                      isActive('/user-management') 
                         ? 'border-primary-500 text-gray-900' 
                         : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                     }`}
                   >
-                    Admin Panel
+                    Manage Users
                   </Link>
                 )}
                 <Link
@@ -110,6 +112,7 @@ const Layout = ({ children }) => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+      <WhatsAppButton />
     </div>
   );
 };

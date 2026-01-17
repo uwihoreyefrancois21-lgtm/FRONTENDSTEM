@@ -3,7 +3,6 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
-import Admin from './pages/Admin';
 import Dashboard from './pages/Dashboard';
 import ForgotPassword from './pages/ForgotPassword';
 import Home from './pages/Home';
@@ -15,6 +14,8 @@ import Reports from './pages/Reports';
 import ResetPassword from './pages/ResetPassword';
 import Transactions from './pages/Transactions';
 import ProfileSettings from './pages/ProfileSettings';
+import Payments from './pages/Payments';
+import UserManagement from './pages/UserManagement';
 
 function App() {
   return (
@@ -74,10 +75,28 @@ function App() {
             />
             
             <Route
-              path="/admin"
+              path="/user-management"
               element={
                 <ProtectedRoute requireAdmin>
-                  <Admin />
+                  <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/payments"
+              element={
+                <ProtectedRoute>
+                  <Payments />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/profile-settings"
+              element={
+                <ProtectedRoute>
+                  <ProfileSettings />
                 </ProtectedRoute>
               }
             />
@@ -86,14 +105,6 @@ function App() {
             <Route 
               path="*" 
               element={<Navigate to="/" replace />} 
-            />
-            <Route
-              path="/profile-settings"
-              element={
-                <ProtectedRoute>
-                  <ProfileSettings />
-                </ProtectedRoute>
-              }
             />
           </Routes>
         </div>

@@ -46,7 +46,7 @@ const Reports = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    {/*<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md p-6 text-white">
           <p className="text-sm opacity-90">Total Income</p>
           <p className="text-3xl font-bold mt-2">
@@ -70,7 +70,7 @@ const Reports = () => {
           </p>
         </div>
       </div>
-
+*/}
       {/* Projects Table */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">

@@ -5,4 +5,5 @@ export { reportService } from './reportService';
 export { taskService } from './taskService';
 export { transactionService } from './transactionService';
 export { userService } from './userService';
+export { paymentService } from './paymentService';
 

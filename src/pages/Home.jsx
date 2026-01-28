@@ -86,7 +86,7 @@ const Home = () => {
                 SPEMS
               </span>
               <span className="ml-2 text-xs bg-primary-100 text-primary-800 px-2 py-1 rounded-full font-medium">
-                v1.0
+            
               </span>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
@@ -222,17 +222,17 @@ const Home = () => {
                 {
                   number: '1',
                   title: 'Create Your Account',
-                  description: 'Sign up for a free account and set up your profile in minutes.'
+                  description: 'Sign up for  account  and  Sign inand set up your profile in minutes.'
                 },
                 {
                   number: '2',
                   title: 'Add Your Projects',
-                  description: 'Create projects, add team members, and set up your budget.'
+                  description: 'Create projects, add assign task, and set up your budget.'
                 },
                 {
                   number: '3',
                   title: 'Track & Analyze',
-                  description: 'Monitor progress, track expenses, and analyze your project performance.'
+                  description: 'Monitor progress, track income , expenses, and analyze your project performance.'
                 }
               ].map((step, index) => (
                 <div key={index} className="bg-white p-8 rounded-xl shadow-md text-center">
@@ -350,8 +350,7 @@ const Home = () => {
               <ul className="space-y-2">
                 <li><a href="#" className="text-gray-400 hover:text-white transition-colors">About Us</a></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
+                
               </ul>
             </div>
             <div>

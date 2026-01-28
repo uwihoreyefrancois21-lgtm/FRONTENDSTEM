@@ -96,8 +96,8 @@ const [userPaymentMap, setUserPaymentMap] = useState({});
 
       const paymentMap = {};
       
-      // Fetch payments for all users for the target month
-      for (const u of users) {
+      // Use Promise.all to fetch payments for all users in parallel instead of sequentially
+      const paymentPromises = users.map(async (u) => {
         try {
           const paymentRes = await paymentService.getAll(
             u.id,
@@ -126,11 +126,30 @@ const [userPaymentMap, setUserPaymentMap] = useState({});
           
           if (monthPayment && monthPayment.id) {
             // Payment exists in database
-            paymentMap[u.id] = { ...monthPayment, username: u.username, email: u.email };
+            return { userId: u.id, payment: { ...monthPayment, username: u.username, email: u.email } };
           } else {
             // No payment record for this month - create a placeholder
-            paymentMap[u.id] = {
-              id:'',
+            return {
+              userId: u.id,
+              payment: {
+                id:'',
+                user_id: u.id,
+                amount: 15000,
+                payment_month: targetMonth,
+                status: '',
+                payment_method: 'MOMO',
+                paid_at: '',
+                username: u.username,
+                email: u.email
+              }
+            };
+          }
+        } catch (error) {
+          console.error(`Failed to fetch payment for user ${u.id}:`, error);
+          return {
+            userId: u.id,
+            payment: {
+              id: '',
               user_id: u.id,
               amount: 15000,
               payment_month: targetMonth,
@@ -139,23 +158,18 @@ const [userPaymentMap, setUserPaymentMap] = useState({});
               paid_at: '',
               username: u.username,
               email: u.email
-            };
-          }
-        } catch (error) {
-          console.error(`Failed to fetch payment for user ${u.id}:`, error);
-          paymentMap[u.id] = {
-            id: '',
-            user_id: u.id,
-            amount: 15000,
-            payment_month: targetMonth,
-            status: '',
-            payment_method: 'MOMO',
-            paid_at: '',
-            username: u.username,
-            email: u.email
+            }
           };
         }
-      }
+      });
+
+      // Wait for all promises to resolve in parallel
+      const results = await Promise.all(paymentPromises);
+      
+      // Build the payment map from results
+      results.forEach(({ userId, payment }) => {
+        paymentMap[userId] = payment;
+      });
       
       setUserPaymentMap(paymentMap);
     } catch (error) {

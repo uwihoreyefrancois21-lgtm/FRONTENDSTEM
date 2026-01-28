@@ -14,6 +14,7 @@ export const paymentService = {
   update: (id, payment) => api.put(`/payments/${id}`, payment),
   delete: (id) => api.delete(`/payments/${id}`),
   checkAndRemind: () => api.post('/payments/check-and-remind'),
+  getMyStatus: () => api.get('/payments/my-status'),
 };
 
 

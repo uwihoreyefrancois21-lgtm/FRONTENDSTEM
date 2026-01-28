@@ -7,14 +7,14 @@ import Dashboard from './pages/Dashboard';
 import ForgotPassword from './pages/ForgotPassword';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Payments from './pages/Payments';
+import ProfileSettings from './pages/ProfileSettings';
 import ProjectDetail from './pages/ProjectDetail';
 import Projects from './pages/Projects';
 import Register from './pages/Register';
 import Reports from './pages/Reports';
 import ResetPassword from './pages/ResetPassword';
 import Transactions from './pages/Transactions';
-import ProfileSettings from './pages/ProfileSettings';
-import Payments from './pages/Payments';
 import UserManagement from './pages/UserManagement';
 
 function App() {

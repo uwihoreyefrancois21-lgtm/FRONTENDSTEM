@@ -17,10 +17,21 @@
 import api from './api';
 
 export const taskService = {
-  getAll: (projectId, startDate, endDate) => {
+  getAll: (projectId, month, year, startDate, endDate) => {
     const params = { project_id: projectId };
-    if (startDate) params.start_date = startDate;
-    if (endDate) params.end_date = endDate;
+    // Date range takes priority over month/year
+    if (startDate && endDate) {
+      params.start_date = startDate;
+      params.end_date = endDate;
+    } else if (startDate) {
+      params.start_date = startDate;
+    } else if (endDate) {
+      params.end_date = endDate;
+    } else {
+      // Use month/year if date range not provided
+      if (month) params.month = month;
+      if (year) params.year = year;
+    }
     return api.get('/tasks', { params });
   },
   getById: (id) => api.get(`/tasks/${id}`),

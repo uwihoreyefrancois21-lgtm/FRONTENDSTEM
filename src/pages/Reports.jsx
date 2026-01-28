@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { reportService } from '../services';
+import { toast } from 'react-toastify';
 
 const Reports = () => {
   const [summary, setSummary] = useState([]);
@@ -7,6 +9,12 @@ const Reports = () => {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [filterType, setFilterType] = useState('month'); // 'month' or 'range'
+  const [monthFilter, setMonthFilter] = useState('');
+  const [yearFilter, setYearFilter] = useState(new Date().getFullYear().toString());
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [downloadingProjectId, setDownloadingProjectId] = useState(null);
 
   useEffect(() => {
     fetchSummary();
@@ -30,6 +38,43 @@ const Reports = () => {
     }
   };
 
+  const buildPeriodParams = () => {
+    const params = {};
+    if (filterType === 'range' && (startDate || endDate)) {
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
+    } else if (filterType === 'month' && monthFilter) {
+      params.month = monthFilter;
+      params.year = yearFilter;
+    }
+    return params;
+  };
+
+  const handleDownloadProjectReport = async (projectId) => {
+    try {
+      setDownloadingProjectId(projectId);
+      const params = buildPeriodParams();
+      const response = await reportService.downloadProjectReport(projectId, params);
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `project_${projectId}_financial_report.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success('Report downloaded successfully');
+    } catch (error) {
+      console.error('Failed to download report:', error);
+      toast.error('Failed to download report');
+    } finally {
+      setDownloadingProjectId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -42,7 +87,10 @@ const Reports = () => {
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Financial Reports</h1>
-        <p className="text-gray-600 mt-2">Summary of all projects</p>
+        <p className="text-gray-600 mt-2">
+          Summary of all projects. Use the filters to generate and download detailed financial reports
+          (tasks, transactions, income and expenses) for a specific period.
+        </p>
       </div>
 
       {/* Summary Cards */}
@@ -72,9 +120,121 @@ const Reports = () => {
       </div>
 */}
       {/* Projects Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Financial Summary by Project</h2>
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-blue-600">
+        <div className="px-6 py-4 border-b-2 border-yellow-400">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <h2 className="text-xl font-bold text-gray-900">Financial Summary by Project</h2>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter Type:</label>
+                <select
+                  value={filterType}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFilterType(value);
+                    if (value === 'month') {
+                      setStartDate('');
+                      setEndDate('');
+                    } else {
+                      setMonthFilter('');
+                      setYearFilter(new Date().getFullYear().toString());
+                    }
+                  }}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                >
+                  <option value="month">Month/Year</option>
+                  <option value="range">Date Range</option>
+                </select>
+              </div>
+              {filterType === 'month' ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Month:</label>
+                    <select
+                      value={monthFilter}
+                      onChange={(e) => setMonthFilter(e.target.value)}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                    >
+                      <option value="">All Months</option>
+                      <option value="1">January</option>
+                      <option value="2">February</option>
+                      <option value="3">March</option>
+                      <option value="4">April</option>
+                      <option value="5">May</option>
+                      <option value="6">June</option>
+                      <option value="7">July</option>
+                      <option value="8">August</option>
+                      <option value="9">September</option>
+                      <option value="10">October</option>
+                      <option value="11">November</option>
+                      <option value="12">December</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Year:</label>
+                    <input
+                      type="number"
+                      value={yearFilter}
+                      onChange={(e) => setYearFilter(e.target.value)}
+                      min="2000"
+                      max="2100"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm w-24"
+                      placeholder="Year"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Start Date:</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700 whitespace-nowrap">End Date:</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      min={startDate || undefined}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                    />
+                  </div>
+                </>
+              )}
+              <button
+                onClick={() => {
+                  setFilterType('month');
+                  setMonthFilter('');
+                  setYearFilter(new Date().getFullYear().toString());
+                  setStartDate('');
+                  setEndDate('');
+                }}
+                className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* Overall financial summary for all projects */}
+        <div className="px-6 py-3 bg-blue-50 border-b border-gray-200">
+          <div className="flex flex-wrap items-center gap-4 text-sm font-semibold">
+            <span className="text-gray-700">All Projects Summary:</span>
+            <span className="text-green-600">
+              Total Income: RWF {totalIncome.toLocaleString('en-US')}
+            </span>
+            <span className="text-red-600">
+              Total Expense: RWF {totalExpense.toLocaleString('en-US')}
+            </span>
+            <span className={totalBalance >= 0 ? 'text-green-700' : 'text-red-700'}>
+              Balance: RWF {totalBalance.toLocaleString('en-US')}
+            </span>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -85,6 +245,7 @@ const Reports = () => {
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total Expense</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Balance</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -112,6 +273,23 @@ const Reports = () => {
                     }`}>
                       {(project.balance || 0) >= 0 ? 'Profit' : 'Loss'}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
+                    <div className="flex items-center justify-center gap-3">
+                      <Link
+                        to={`/projects/${project.id}`}
+                        className="text-primary-600 hover:text-primary-900 font-medium"
+                      >
+                        View Details
+                      </Link>
+                      <button
+                        onClick={() => handleDownloadProjectReport(project.id)}
+                        disabled={downloadingProjectId === project.id}
+                        className="px-3 py-1.5 text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        {downloadingProjectId === project.id ? 'Downloading...' : 'Download Report'}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

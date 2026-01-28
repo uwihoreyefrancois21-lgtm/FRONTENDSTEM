@@ -55,8 +55,11 @@ const UserManagement = () => {
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
       oneMonthAgo.setHours(0, 0, 0, 0);
       
+      const nonAdminUsers = usersList.filter(u => u.role !== 'admin');
       const paymentsMap = {};
-      for (const u of usersList.filter(u => u.role !== 'admin')) {
+      
+      // Use Promise.all to fetch payments for all users in parallel instead of sequentially
+      const paymentPromises = nonAdminUsers.map(async (u) => {
         try {
           // Fetch current month payment
           const paymentRes = await paymentService.getAll(u.id, null, currentMonth, currentYear);
@@ -73,9 +76,9 @@ const UserManagement = () => {
             // Check if it's paid and within last month
             if (currentMonthPayment.status === 'paid' && currentMonthPayment.paid_at) {
               const paidDate = new Date(currentMonthPayment.paid_at);
-              paymentsMap[u.id] = paidDate >= oneMonthAgo ? 'paid' : 'unpaid';
+              return { userId: u.id, status: paidDate >= oneMonthAgo ? 'paid' : 'unpaid' };
             } else {
-              paymentsMap[u.id] = currentMonthPayment.status || 'unpaid';
+              return { userId: u.id, status: currentMonthPayment.status || 'unpaid' };
             }
           } else {
             // No payment record for current month - check if they have any recent paid payment
@@ -84,13 +87,22 @@ const UserManagement = () => {
             const recentPaid = allPayments.find(
               p => p.status === 'paid' && p.paid_at && new Date(p.paid_at) >= oneMonthAgo
             );
-            paymentsMap[u.id] = recentPaid ? 'paid' : 'unpaid';
+            return { userId: u.id, status: recentPaid ? 'paid' : 'unpaid' };
           }
         } catch (error) {
           console.error(`Failed to fetch payment for user ${u.id}:`, error);
-          paymentsMap[u.id] = 'unknown';
+          return { userId: u.id, status: 'unknown' };
         }
-      }
+      });
+
+      // Wait for all promises to resolve in parallel
+      const results = await Promise.all(paymentPromises);
+      
+      // Build the payments map from results
+      results.forEach(({ userId, status }) => {
+        paymentsMap[userId] = status;
+      });
+      
       setUserPayments(paymentsMap);
     } catch (error) {
       console.error('Failed to fetch payment statuses:', error);

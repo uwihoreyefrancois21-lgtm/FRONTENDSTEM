@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { projectService, taskService, transactionService } from '../services';
+import { projectService, taskService, transactionService, reportService } from '../services';
 import { formatCurrency } from '../utils/format';
 import { toast } from 'react-toastify';
 
@@ -27,8 +27,14 @@ const ProjectDetail = () => {
   });
   const [taskMonthFilter, setTaskMonthFilter] = useState('');
   const [taskYearFilter, setTaskYearFilter] = useState(new Date().getFullYear().toString());
+  const [taskStartDate, setTaskStartDate] = useState('');
+  const [taskEndDate, setTaskEndDate] = useState('');
+  const [taskFilterType, setTaskFilterType] = useState('month'); // 'month' or 'range'
   const [transactionMonthFilter, setTransactionMonthFilter] = useState('');
   const [transactionYearFilter, setTransactionYearFilter] = useState(new Date().getFullYear().toString());
+  const [transactionStartDate, setTransactionStartDate] = useState('');
+  const [transactionEndDate, setTransactionEndDate] = useState('');
+  const [transactionFilterType, setTransactionFilterType] = useState('month'); // 'month' or 'range'
   const [transactionFormData, setTransactionFormData] = useState({
     type: 'expense',
     amount: '',
@@ -36,6 +42,7 @@ const ProjectDetail = () => {
     transaction_date: new Date().toISOString().split('T')[0],
     task_id: '',
   });
+  const [downloadingReport, setDownloadingReport] = useState(false);
 
   useEffect(() => {
     fetchProjectData();
@@ -47,14 +54,35 @@ const ProjectDetail = () => {
         setActiveTab(hash);
       }
     }
-  }, [id, location.hash, taskMonthFilter, taskYearFilter, transactionMonthFilter, transactionYearFilter]);
+  }, [id, location.hash]); // Only fetch on mount or when project ID changes
 
   const fetchProjectData = async () => {
     try {
+      setLoading(true);
+      // Determine task filter parameters
+      let taskMonth = null, taskYear = null, taskStart = null, taskEnd = null;
+      if (taskFilterType === 'range' && (taskStartDate || taskEndDate)) {
+        taskStart = taskStartDate || null;
+        taskEnd = taskEndDate || null;
+      } else if (taskFilterType === 'month') {
+        taskMonth = taskMonthFilter || null;
+        taskYear = taskYearFilter || null;
+      }
+
+      // Determine transaction filter parameters
+      let transMonth = null, transYear = null, transStart = null, transEnd = null;
+      if (transactionFilterType === 'range' && (transactionStartDate || transactionEndDate)) {
+        transStart = transactionStartDate || null;
+        transEnd = transactionEndDate || null;
+      } else if (transactionFilterType === 'month') {
+        transMonth = transactionMonthFilter || null;
+        transYear = transactionYearFilter || null;
+      }
+
       const [projectRes, tasksRes, transactionsRes] = await Promise.all([
         projectService.getById(id),
-        taskService.getAll(id, taskMonthFilter || null, taskYearFilter || null),
-        transactionService.getAll(id, transactionMonthFilter || null, transactionYearFilter || null),
+        taskService.getAll(id, taskMonth, taskYear, taskStart, taskEnd),
+        transactionService.getAll(id, transMonth, transYear, transStart, transEnd),
       ]);
 
       if (projectRes.success) setProject(projectRes.data.project);
@@ -62,9 +90,61 @@ const ProjectDetail = () => {
       if (transactionsRes.success) setTransactions(transactionsRes.data.transactions);
     } catch (error) {
       console.error('Failed to fetch project data:', error);
+      toast.error('Failed to fetch project data');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDownloadReport = async (customParams) => {
+    try {
+      setDownloadingReport(true);
+
+      // Derive the period parameters from the current transaction filter (to match user expectation)
+      let params = customParams;
+      if (!params) {
+        params = {};
+        if (transactionFilterType === 'range' && (transactionStartDate || transactionEndDate)) {
+          params.start_date = transactionStartDate || undefined;
+          params.end_date = transactionEndDate || undefined;
+        } else if (transactionFilterType === 'month' && transactionMonthFilter) {
+          params.month = transactionMonthFilter;
+          params.year = transactionYearFilter;
+        }
+      }
+
+      const response = await reportService.downloadProjectReport(id, params);
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `project_${id}_financial_report.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success('Report downloaded successfully');
+    } catch (error) {
+      console.error('Failed to download report:', error);
+      toast.error('Failed to download report');
+    } finally {
+      setDownloadingReport(false);
+    }
+  };
+
+  const handleDownloadTasksPdf = () => {
+    // Build params based on task filters, then reuse the common PDF download
+    let params = {};
+    if (taskFilterType === 'range' && (taskStartDate || taskEndDate)) {
+      params.start_date = taskStartDate || undefined;
+      params.end_date = taskEndDate || undefined;
+    } else if (taskFilterType === 'month' && taskMonthFilter) {
+      params.month = taskMonthFilter;
+      params.year = taskYearFilter;
+    }
+    handleDownloadReport(params);
   };
 
   const handleAddTask = async (e) => {
@@ -183,6 +263,23 @@ const ProjectDetail = () => {
     return <div className="text-center text-gray-600">Project not found</div>;
   }
 
+  // Totals for currently filtered tasks and transactions
+  const totalTaskIncome = tasks
+    .filter((t) => t.type === 'income')
+    .reduce((sum, t) => sum + (parseFloat(t.cost) || 0), 0);
+
+  const totalTaskExpense = tasks
+    .filter((t) => t.type === 'expense')
+    .reduce((sum, t) => sum + (parseFloat(t.cost) || 0), 0);
+
+  const totalTransactionIncome = transactions
+    .filter((tr) => tr.type === 'income')
+    .reduce((sum, tr) => sum + (parseFloat(tr.amount) || 0), 0);
+
+  const totalTransactionExpense = transactions
+    .filter((tr) => tr.type === 'expense')
+    .reduce((sum, tr) => sum + (parseFloat(tr.amount) || 0), 0);
+
   return (
     <div>
       <div className="mb-8">
@@ -211,6 +308,21 @@ const ProjectDetail = () => {
           }`}>
             RWF {formatCurrency(project.balance)}
           </p>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between">
+          <div>
+            <p className="text-sm text-gray-600">Financial Report</p>
+            <p className="text-sm text-gray-500 mt-2">
+              Generate a PDF report for this project using the selected transaction period.
+            </p>
+          </div>
+          <button
+            onClick={handleDownloadReport}
+            disabled={downloadingReport}
+            className="mt-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          >
+            {downloadingReport ? 'Generating...' : 'Download Financial Report'}
+          </button>
         </div>
       </div>
 
@@ -301,45 +413,114 @@ const ProjectDetail = () => {
               <h2 className="text-lg sm:text-xl font-bold text-gray-900">Tasks</h2>
               <div className="flex flex-wrap gap-3 items-center">
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Month:</label>
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter Type:</label>
                   <select
-                    value={taskMonthFilter}
+                    value={taskFilterType}
                     onChange={(e) => {
-                      setTaskMonthFilter(e.target.value);
-                      setLoading(true);
+                      setTaskFilterType(e.target.value);
+                      if (e.target.value === 'month') {
+                        setTaskStartDate('');
+                        setTaskEndDate('');
+                      } else {
+                        setTaskMonthFilter('');
+                        setTaskYearFilter(new Date().getFullYear().toString());
+                      }
                     }}
                     className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
                   >
-                    <option value="">All Months</option>
-                    <option value="1">January</option>
-                    <option value="2">February</option>
-                    <option value="3">March</option>
-                    <option value="4">April</option>
-                    <option value="5">May</option>
-                    <option value="6">June</option>
-                    <option value="7">July</option>
-                    <option value="8">August</option>
-                    <option value="9">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
+                    <option value="month">Month/Year</option>
+                    <option value="range">Date Range</option>
                   </select>
                 </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Year:</label>
-                  <input
-                    type="number"
-                    value={taskYearFilter}
-                    onChange={(e) => {
-                      setTaskYearFilter(e.target.value);
-                      setLoading(true);
+                {taskFilterType === 'month' ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Month:</label>
+                      <select
+                        value={taskMonthFilter}
+                        onChange={(e) => {
+                          setTaskMonthFilter(e.target.value);
+                        }}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                      >
+                        <option value="">All Months</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Year:</label>
+                      <input
+                        type="number"
+                        value={taskYearFilter}
+                        onChange={(e) => {
+                          setTaskYearFilter(e.target.value);
+                        }}
+                        min="2000"
+                        max="2100"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm w-24"
+                        placeholder="Year"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Start Date:</label>
+                      <input
+                        type="date"
+                        value={taskStartDate}
+                        onChange={(e) => {
+                          setTaskStartDate(e.target.value);
+                        }}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">End Date:</label>
+                      <input
+                        type="date"
+                        value={taskEndDate}
+                        onChange={(e) => {
+                          setTaskEndDate(e.target.value);
+                        }}
+                        min={taskStartDate || undefined}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                      />
+                    </div>
+                  </>
+                )}
+                <button
+                    onClick={() => {
+                      setTaskMonthFilter('');
+                      setTaskYearFilter(new Date().getFullYear().toString());
+                      setTaskStartDate('');
+                      setTaskEndDate('');
+                      setTaskFilterType('month');
                     }}
-                    min="2000"
-                    max="2100"
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm w-24"
-                    placeholder="Year"
-                  />
-                </div>
+                    className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  >
+                    Clear
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLoading(true);
+                      fetchProjectData();
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+                  >
+                    Apply Filters
+                  </button>
               </div>
             </div>
           </div>
@@ -417,6 +598,31 @@ const ProjectDetail = () => {
               </tbody>
             </table>
           </div>
+          <div className="px-4 sm:px-6 py-4 border-t border-gray-100 bg-gray-50">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm font-semibold">
+                <div className="text-green-700">
+                  Total Task Income (selected period):{' '}
+                  <span className="font-bold">
+                    RWF {formatCurrency(totalTaskIncome)}
+                  </span>
+                </div>
+                <div className="text-red-700">
+                  Total Task Expense (selected period):{' '}
+                  <span className="font-bold">
+                    RWF {formatCurrency(totalTaskExpense)}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={handleDownloadTasksPdf}
+                disabled={downloadingReport}
+                className="inline-flex items-center px-4 py-1.5 rounded-md bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {downloadingReport ? 'Generating...' : 'Download Tasks PDF'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -427,45 +633,114 @@ const ProjectDetail = () => {
               <h2 className="text-lg sm:text-xl font-bold text-gray-900">Transactions</h2>
               <div className="flex flex-wrap gap-3 items-center">
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Month:</label>
+                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter Type:</label>
                   <select
-                    value={transactionMonthFilter}
+                    value={transactionFilterType}
                     onChange={(e) => {
-                      setTransactionMonthFilter(e.target.value);
-                      setLoading(true);
+                      setTransactionFilterType(e.target.value);
+                      if (e.target.value === 'month') {
+                        setTransactionStartDate('');
+                        setTransactionEndDate('');
+                      } else {
+                        setTransactionMonthFilter('');
+                        setTransactionYearFilter(new Date().getFullYear().toString());
+                      }
                     }}
                     className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
                   >
-                    <option value="">All Months</option>
-                    <option value="1">January</option>
-                    <option value="2">February</option>
-                    <option value="3">March</option>
-                    <option value="4">April</option>
-                    <option value="5">May</option>
-                    <option value="6">June</option>
-                    <option value="7">July</option>
-                    <option value="8">August</option>
-                    <option value="9">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
+                    <option value="month">Month/Year</option>
+                    <option value="range">Date Range</option>
                   </select>
                 </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Year:</label>
-                  <input
-                    type="number"
-                    value={transactionYearFilter}
-                    onChange={(e) => {
-                      setTransactionYearFilter(e.target.value);
-                      setLoading(true);
-                    }}
-                    min="2000"
-                    max="2100"
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm w-24"
-                    placeholder="Year"
-                  />
-                </div>
+                {transactionFilterType === 'month' ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Month:</label>
+                      <select
+                        value={transactionMonthFilter}
+                        onChange={(e) => {
+                          setTransactionMonthFilter(e.target.value);
+                        }}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                      >
+                        <option value="">All Months</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Year:</label>
+                      <input
+                        type="number"
+                        value={transactionYearFilter}
+                        onChange={(e) => {
+                          setTransactionYearFilter(e.target.value);
+                        }}
+                        min="2000"
+                        max="2100"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm w-24"
+                        placeholder="Year"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Start Date:</label>
+                      <input
+                        type="date"
+                        value={transactionStartDate}
+                        onChange={(e) => {
+                          setTransactionStartDate(e.target.value);
+                        }}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">End Date:</label>
+                      <input
+                        type="date"
+                        value={transactionEndDate}
+                        onChange={(e) => {
+                          setTransactionEndDate(e.target.value);
+                        }}
+                        min={transactionStartDate || undefined}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                      />
+                    </div>
+                  </>
+                )}
+                <button
+                  onClick={() => {
+                    setTransactionMonthFilter('');
+                    setTransactionYearFilter(new Date().getFullYear().toString());
+                    setTransactionStartDate('');
+                    setTransactionEndDate('');
+                    setTransactionFilterType('month');
+                  }}
+                  className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={() => {
+                    setLoading(true);
+                    fetchProjectData();
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+                >
+                  Apply Filters
+                </button>
               </div>
             </div>
           </div>
@@ -530,6 +805,31 @@ const ProjectDetail = () => {
                 )}
               </tbody>
             </table>
+          </div>
+          <div className="px-4 sm:px-6 py-4 border-t border-gray-100 bg-gray-50">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm font-semibold">
+                <div className="text-green-700">
+                  Total Transaction Income (selected period):{' '}
+                  <span className="font-bold">
+                    RWF {formatCurrency(totalTransactionIncome)}
+                  </span>
+                </div>
+                <div className="text-red-700">
+                  Total Transaction Expense (selected period):{' '}
+                  <span className="font-bold">
+                    RWF {formatCurrency(totalTransactionExpense)}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => handleDownloadReport()}
+                disabled={downloadingReport}
+                className="inline-flex items-center px-4 py-1.5 rounded-md bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {downloadingReport ? 'Generating...' : 'Download Transactions PDF'}
+              </button>
+            </div>
           </div>
         </div>
       )}

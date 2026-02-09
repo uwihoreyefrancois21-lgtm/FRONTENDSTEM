@@ -18,7 +18,7 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
-      <nav className="bg-white shadow-md">
+      <nav className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
@@ -95,6 +95,18 @@ const Layout = ({ children }) => {
             </div>
             <div className="flex items-center">
               <div className="flex items-center space-x-4">
+                {isAdmin && (
+                  <Link
+                    to="/system-management"
+                    className={`text-sm font-medium ${
+                      isActive('/system-management') 
+                        ? 'text-primary-600' 
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    System Management
+                  </Link>
+                )}
                 <span className="text-sm text-gray-700">{user?.username}</span>
                 <button
                   onClick={handleLogout}

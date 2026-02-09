@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import WhatsAppButton from '../components/WhatsAppButton';
+import { useAuth } from '../contexts/AuthContext';
 
 const FeatureCard = ({ icon, title, description }) => (
   <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -83,7 +83,7 @@ const Home = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-blue-600 bg-clip-text text-transparent">
-                SPEMS
+                GlobalTrade Hub
               </span>
               <span className="ml-2 text-xs bg-primary-100 text-primary-800 px-2 py-1 rounded-full font-medium">
             
@@ -104,28 +104,22 @@ const Home = () => {
               {user ? (
                 <>
                   <Link 
-                    to="/login" 
+                    to="/dashboard" 
                     className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
                   >
-                    Sign In
-                  </Link>
-                  <Link 
-                    to="/register" 
-                    className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
-                  >
-                    Get Started
+                    Dashboard
                   </Link>
                 </>
               ) : (
                 <>
                   <Link 
-                    to="/login" 
+                    to="/auth" 
                     className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
                   >
                     Sign In
                   </Link>
                   <Link 
-                    to="/register" 
+                    to="/auth" 
                     className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
                   >
                     Get Started
@@ -159,6 +153,10 @@ const Home = () => {
           {/* Content */}
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div className="text-center text-white max-w-4xl mx-auto">
+              <div className="inline-flex items-center px-4 py-1.5 mb-4 rounded-full bg-white/10 border border-white/30 text-sm font-medium tracking-wide uppercase">
+                <span className="mr-2 h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Import &amp; Export Financial System
+              </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
                 Smart Project Earnings <br />
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-yellow-400">
@@ -166,11 +164,11 @@ const Home = () => {
                 </span>
               </h1>
               <p className="text-xl md:text-2xl text-blue-100 mb-10 max-w-2xl mx-auto">
-                Take control of your projects, track expenses, and maximize profits with our all-in-one project management solution.
+                Take control of your projects and international trade: manage projects, imports, exports, stock and finance in one powerful system.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <Link 
-                  to={user ? "/dashboard" : "/register"} 
+                  to={user ? "/dashboard" : "/auth"} 
                   className="bg-white text-primary-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                 >
                   {user ? 'Go to Dashboard' : 'Start Free Trial'}
@@ -210,39 +208,94 @@ const Home = () => {
 
         {/* How It Works Section */}
         <section id="how-it-works" className="py-20 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+            <div className="text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                How It Works
+              </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Get started in minutes and take control of your projects today
+                See how SPEMS and the Import &amp; Export Financial System help you manage business from one place.
               </p>
             </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  number: '1',
-                  title: 'Create Your Account',
-                  description: 'Sign up for  account  and  Sign inand set up your profile in minutes.'
-                },
-                {
-                  number: '2',
-                  title: 'Add Your Projects',
-                  description: 'Create projects, add assign task, and set up your budget.'
-                },
-                {
-                  number: '3',
-                  title: 'Track & Analyze',
-                  description: 'Monitor progress, track income , expenses, and analyze your project performance.'
-                }
-              ].map((step, index) => (
-                <div key={index} className="bg-white p-8 rounded-xl shadow-md text-center">
-                  <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 text-2xl font-bold mx-auto mb-6">
-                    {step.number}
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
-                  <p className="text-gray-600">{step.description}</p>
+
+            {/* SPEMS – How it works */}
+            <div className="bg-white rounded-2xl shadow-md p-8 md:p-10">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
+                <div className="md:w-1/3">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">SPEMS – Projects &amp; Earnings</h3>
+                  <p className="text-gray-600">
+                    Smart Project Earnings Management System helps you follow every project from planning to final profit.
+                  </p>
                 </div>
-              ))}
+                <div className="md:w-2/3 grid md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      number: '1',
+                      title: 'Create Project',
+                      description: 'Open a new project, set basic info and budget, and add your team or workers.'
+                    },
+                    {
+                      number: '2',
+                      title: 'Add Tasks & Costs',
+                      description: 'Assign tasks, record incomes and expenses, and update project progress as you work.'
+                    },
+                    {
+                      number: '3',
+                      title: 'See Profit',
+                      description: 'SPEMS calculates total income, expenses and net profit so you clearly see what you earn.'
+                    }
+                  ].map((step, index) => (
+                    <div key={index} className="bg-gray-50 p-6 rounded-xl text-center">
+                      <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 text-lg font-bold mx-auto mb-4">
+                        {step.number}
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">{step.title}</h4>
+                      <p className="text-gray-600 text-sm">{step.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Import & Export Financial System – How it works */}
+            <div className="bg-white rounded-2xl shadow-md p-8 md:p-10">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
+                <div className="md:w-1/3">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    Import &amp; Export Financial System (EIF)
+                  </h3>
+                  <p className="text-gray-600">
+                    Designed for trade companies to follow products, partners, operations and money for imports and exports.
+                  </p>
+                </div>
+                <div className="md:w-2/3 grid md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      number: '1',
+                      title: 'Register Products & Partners',
+                      description: 'Add your products, units and buy/sell prices, plus suppliers and customers.'
+                    },
+                    {
+                      number: '2',
+                      title: 'Create Import/Export Operations',
+                      description: 'Record each shipment with quantities, prices and partner so the system knows your stock and operation amount.'
+                    },
+                    {
+                      number: '3',
+                      title: 'Track Payments & Profit',
+                      description: 'Add payments and expenses, see remaining balances, and generate reports showing stock value and net profit.'
+                    }
+                  ].map((step, index) => (
+                    <div key={index} className="bg-gray-50 p-6 rounded-xl text-center">
+                      <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-lg font-bold mx-auto mb-4">
+                        {step.number}
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">{step.title}</h4>
+                      <p className="text-gray-600 text-sm">{step.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -253,19 +306,21 @@ const Home = () => {
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Simple, Transparent Pricing</h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                One plan with everything you need for just $10/month
+                Choose the plan that best fits your business needs
               </p>
             </div>
             
-            <div className="max-w-md mx-auto">
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              {/* SPEMS Pricing Card */}
               <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-blue-500">
                 <div className="p-8 text-center">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Premium Plan</h3>
+                  <div className="text-4xl mb-4">📊</div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">SPEMS</h3>
                   <div className="mb-6">
                     <span className="text-4xl font-extrabold text-gray-900">$10</span>
                     <span className="text-gray-600">/month</span>
                   </div>
-                  <p className="text-gray-600 mb-8">Everything you need to manage your projects effectively</p>
+                  <p className="text-gray-600 mb-8">Smart Project Earnings Management System</p>
                   <ul className="space-y-3 text-left mb-8">
                     <li className="flex items-center">
                       <svg className="h-5 w-5 text-blue-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -289,16 +344,158 @@ const Home = () => {
                       <svg className="h-5 w-5 text-blue-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
-                      Task Managment
+                      Task Management
                     </li>
                   </ul>
                   <Link
-                    to={user ? "/dashboard" : "/register"}
+                    to={user ? "/dashboard" : "/auth?system=SPEMS"}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 inline-block"
                   >
                     {user ? 'Go to Dashboard' : 'Get Started Now'}
                   </Link>
                 </div>
+              </div>
+
+              {/* Export-Import & Finance Pricing Card */}
+              <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-purple-500">
+                <div className="p-8 text-center">
+                  <div className="text-4xl mb-4">🚢</div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Export-Import & Finance</h3>
+                  <div className="mb-6">
+                    <span className="text-4xl font-extrabold text-gray-900">$12</span>
+                    <span className="text-gray-600">/month</span>
+                  </div>
+                  <p className="text-gray-600 mb-8">Complete Import/Export & Financial Management</p>
+                  <ul className="space-y-3 text-left mb-8">
+                    <li className="flex items-center">
+                      <svg className="h-5 w-5 text-purple-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Import & Export Operations
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="h-5 w-5 text-purple-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Product & Stock Management
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="h-5 w-5 text-purple-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Partner Management
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="h-5 w-5 text-purple-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Payment & Expense Tracking
+                    </li>
+                  </ul>
+                  <Link
+                    to={user ? "/eif/dashboard" : "/auth?system=EIF"}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 inline-block"
+                  >
+                    {user ? 'Go to Dashboard' : 'Get Started Now'}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* System Selection Section */}
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Choose Your System
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Select the system that best fits your business needs
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              {/* SPEMS Card */}
+              <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-blue-100">
+                <div className="text-center mb-6">
+                  <div className="text-5xl mb-4">📊</div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">SPEMS</h3>
+                  <p className="text-gray-600 mb-4">Smart Project Earnings Management System</p>
+                </div>
+                <ul className="space-y-3 mb-6 text-left">
+                  <li className="flex items-center">
+                    <svg className="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Project Tracking & Management
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Task Management
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Financial Management
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Analytics & Reports
+                  </li>
+                </ul>
+                <Link
+                  to={user ? "/dashboard" : "/auth?system=SPEMS"}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 inline-block text-center"
+                >
+                  {user ? 'Go to SPEMS Dashboard' : 'Get Started with SPEMS'}
+                </Link>
+              </div>
+
+              {/* Export-Import & Finance Card */}
+              <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-purple-100">
+                <div className="text-center mb-6">
+                  <div className="text-5xl mb-4">🚢</div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Export-Import & Finance</h3>
+                  <p className="text-gray-600 mb-4">Complete Import/Export & Financial Management</p>
+                </div>
+                <ul className="space-y-3 mb-6 text-left">
+                  <li className="flex items-center">
+                    <svg className="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Import & Export Operations
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Product & Stock Management
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Partner Management (Suppliers/Customers)
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Payment & Expense Tracking
+                  </li>
+                </ul>
+                <Link
+                  to={user ? "/eif/dashboard" : "/auth?system=EIF"}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 inline-block text-center"
+                >
+                  {user ? 'Go to EIF Dashboard' : 'Get Started with EIF'}
+                </Link>
               </div>
             </div>
           </div>
@@ -334,7 +531,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-xl font-bold mb-4">SPEMS</h3>
+              <h3 className="text-xl font-bold mb-4">GlobalTrade Hub</h3>
               <p className="text-gray-400">Smart Project Earnings Management System</p>
             </div>
             <div>

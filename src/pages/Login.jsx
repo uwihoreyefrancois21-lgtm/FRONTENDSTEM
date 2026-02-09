@@ -19,7 +19,13 @@ const Login = () => {
     const result = await login(formData);
     
     if (result.success) {
-      navigate('/dashboard');
+      // Redirect admins to system selection, others to dashboard
+      const userData = result.data?.user || JSON.parse(localStorage.getItem('user') || '{}');
+      if (userData?.role === 'admin') {
+        navigate('/admin-system-selection');
+      } else {
+        navigate('/dashboard');
+      }
     } else {
       setError(result.message);
     }

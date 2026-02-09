@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
-import { authService, userService, paymentService } from '../services';
-import { Tag, Button, Popconfirm, message } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { authService, paymentService, userService } from '../services';
 // Add these functions inside the UserManagement component
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -12,6 +10,7 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, pending, approved
   const [editingUser, setEditingUser] = useState(null);
+  const [viewingUser, setViewingUser] = useState(null);
   const [editForm, setEditForm] = useState({
     role: '',
   });
@@ -447,6 +446,14 @@ const UserManagement = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col space-y-2">
                         <div className="flex space-x-2 flex-wrap">
+                          <button
+                            onClick={() => setViewingUser(u)}
+                            className="text-blue-600 hover:text-blue-900 text-sm font-medium transition-colors"
+                            title="View user details"
+                          >
+                            View
+                          </button>
+                          <span className="text-gray-300">|</span>
                           {!u.approve_user ? (
                             <>
                               <button
@@ -648,6 +655,101 @@ const UserManagement = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View User Modal */}
+      {viewingUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">User Details</h2>
+              <button
+                onClick={() => setViewingUser(null)}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Username</p>
+                    <p className="text-lg font-semibold text-gray-900">{viewingUser.username}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Email</p>
+                    <p className="text-lg font-semibold text-gray-900">{viewingUser.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Phone</p>
+                    <p className="text-lg font-semibold text-gray-900">{viewingUser.phone || 'N/A'}</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Role</p>
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                      viewingUser.role === 'admin' 
+                        ? 'bg-purple-100 text-purple-800' 
+                        : 'bg-blue-100 text-blue-800'
+                    }`}>
+                      {viewingUser.role}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Approval Status</p>
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                      viewingUser.approve_user 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {viewingUser.approve_user ? 'Approved' : 'Pending'}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Payment Status</p>
+                    {viewingUser.role === 'admin' ? (
+                      <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-gray-600">
+                        N/A
+                      </span>
+                    ) : (
+                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                        userPayments[viewingUser.id] === 'paid' 
+                          ? 'bg-green-100 text-green-800' 
+                          : userPayments[viewingUser.id] === 'unpaid'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {userPayments[viewingUser.id] === 'paid' ? 'Paid' : 
+                         userPayments[viewingUser.id] === 'unpaid' ? 'Unpaid' : 'Unknown'}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Registered Date</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {viewingUser.created_at ? new Date(viewingUser.created_at).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      }) : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 pt-6 border-t border-gray-200 flex justify-end">
+                <button
+                  onClick={() => setViewingUser(null)}
+                  className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

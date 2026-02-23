@@ -105,13 +105,23 @@ const ProjectDetail = () => {
       if (!params) {
         params = {};
         if (transactionFilterType === 'range' && (transactionStartDate || transactionEndDate)) {
-          params.start_date = transactionStartDate || undefined;
-          params.end_date = transactionEndDate || undefined;
+          if (transactionStartDate) params.start_date = transactionStartDate;
+          if (transactionEndDate) params.end_date = transactionEndDate;
         } else if (transactionFilterType === 'month' && transactionMonthFilter) {
-          params.month = transactionMonthFilter;
-          params.year = transactionYearFilter;
+          params.month = parseInt(transactionMonthFilter);
+          params.year = parseInt(transactionYearFilter);
         }
+      } else {
+        // Ensure month and year are integers if present
+        if (params.month) params.month = parseInt(params.month);
+        if (params.year) params.year = parseInt(params.year);
       }
+
+      // Show filter info
+      const filterInfo = Object.keys(params).length > 0 
+        ? ` with ${transactionFilterType === 'month' ? `Month: ${transactionMonthFilter || 'All'}, Year: ${transactionYearFilter}` : `Date Range: ${transactionStartDate || 'Start'} to ${transactionEndDate || 'End'}`}`
+        : ' (all time)';
+      toast.info(`Downloading report${filterInfo}...`);
 
       const response = await reportService.downloadProjectReport(id, params);
 
@@ -138,11 +148,11 @@ const ProjectDetail = () => {
     // Build params based on task filters, then reuse the common PDF download
     let params = {};
     if (taskFilterType === 'range' && (taskStartDate || taskEndDate)) {
-      params.start_date = taskStartDate || undefined;
-      params.end_date = taskEndDate || undefined;
+      if (taskStartDate) params.start_date = taskStartDate;
+      if (taskEndDate) params.end_date = taskEndDate;
     } else if (taskFilterType === 'month' && taskMonthFilter) {
-      params.month = taskMonthFilter;
-      params.year = taskYearFilter;
+      params.month = parseInt(taskMonthFilter);
+      params.year = parseInt(taskYearFilter);
     }
     handleDownloadReport(params);
   };

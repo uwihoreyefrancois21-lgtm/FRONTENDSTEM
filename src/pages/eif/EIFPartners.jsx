@@ -11,6 +11,7 @@ const EIFPartners = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const [formData, setFormData] = useState({ name: '', type: 'SUPPLIER' });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -29,7 +30,9 @@ const EIFPartners = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (saving) return;
     try {
+      setSaving(true);
       if (editingPartner) {
         await eifUpdatePartner(editingPartner.id, formData);
         toast.success('Partner updated');
@@ -44,6 +47,8 @@ const EIFPartners = () => {
       fetchData();
     } catch (error) {
       toast.error('Operation failed');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -130,8 +135,23 @@ const EIFPartners = () => {
                 </select>
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">{editingPartner ? 'Update' : 'Create'}</button>
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : editingPartner ? 'Update' : 'Create'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (saving) return;
+                    setShowModal(false);
+                  }}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>

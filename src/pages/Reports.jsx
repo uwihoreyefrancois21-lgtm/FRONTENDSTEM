@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { reportService } from '../services';
 import { toast } from 'react-toastify';
+import { reportService } from '../services';
 
 const Reports = () => {
   const [summary, setSummary] = useState([]);
@@ -40,13 +40,27 @@ const Reports = () => {
 
   const buildPeriodParams = () => {
     const params = {};
-    if (filterType === 'range' && (startDate || endDate)) {
-      if (startDate) params.start_date = startDate;
-      if (endDate) params.end_date = endDate;
-    } else if (filterType === 'month' && monthFilter) {
-      params.month = monthFilter;
-      params.year = yearFilter;
+    if (filterType === 'range') {
+      if (startDate && startDate.trim()) {
+        params.start_date = startDate.trim();
+      }
+      if (endDate && endDate.trim()) {
+        params.end_date = endDate.trim();
+      }
+    } else if (filterType === 'month') {
+      if (monthFilter && monthFilter.trim()) {
+        params.month = parseInt(monthFilter.trim());
+      }
+      if (yearFilter && yearFilter.trim()) {
+        params.year = parseInt(yearFilter.trim());
+      }
     }
+    // Remove empty values
+    Object.keys(params).forEach(key => {
+      if (params[key] === undefined || params[key] === null || params[key] === '') {
+        delete params[key];
+      }
+    });
     return params;
   };
 
@@ -54,6 +68,13 @@ const Reports = () => {
     try {
       setDownloadingProjectId(projectId);
       const params = buildPeriodParams();
+      
+      // Show filter info
+      const filterInfo = Object.keys(params).length > 0 
+        ? ` with ${filterType === 'month' ? `Month: ${monthFilter || 'All'}, Year: ${yearFilter}` : `Date Range: ${startDate || 'Start'} to ${endDate || 'End'}`}`
+        : ' (all time)';
+      toast.info(`Downloading report${filterInfo}...`);
+      
       const response = await reportService.downloadProjectReport(projectId, params);
 
       const blob = new Blob([response.data], { type: 'application/pdf' });
@@ -98,14 +119,14 @@ const Reports = () => {
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md p-6 text-white">
           <p className="text-sm opacity-90">Total Income</p>
           <p className="text-3xl font-bold mt-2">
-            RWF {totalIncome.toLocaleString('en-US')}
+            $ {totalIncome.toLocaleString('en-US')}
           </p>
         </div>
 
         <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-md p-6 text-white">
           <p className="text-sm opacity-90">Total Expense</p>
           <p className="text-3xl font-bold mt-2">
-            RWF {totalExpense.toLocaleString('en-US')}
+            $ {totalExpense.toLocaleString('en-US')}
           </p>
         </div>
 
@@ -114,16 +135,21 @@ const Reports = () => {
         }`}>
           <p className="text-sm opacity-90">Net Balance</p>
           <p className="text-3xl font-bold mt-2">
-            RWF {totalBalance.toLocaleString('en-US')}
+            $ {totalBalance.toLocaleString('en-US')}
           </p>
         </div>
       </div>
 */}
       {/* Projects Table */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-blue-600">
-        <div className="px-6 py-4 border-b-2 border-yellow-400">
+        <div className="px-6 py-4 border-b-2 border-yellow-400 bg-gradient-to-r from-blue-50 to-yellow-50">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <h2 className="text-xl font-bold text-gray-900">Financial Summary by Project</h2>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Financial Summary by Project</h2>
+              <p className="text-xs text-gray-600 mt-1">
+                Select filters below to download reports for specific date ranges or months
+              </p>
+            </div>
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter Type:</label>
@@ -226,13 +252,13 @@ const Reports = () => {
           <div className="flex flex-wrap items-center gap-4 text-sm font-semibold">
             <span className="text-gray-700">All Projects Summary:</span>
             <span className="text-green-600">
-              Total Income: RWF {totalIncome.toLocaleString('en-US')}
+              Total Income: $ {totalIncome.toLocaleString('en-US')}
             </span>
             <span className="text-red-600">
-              Total Expense: RWF {totalExpense.toLocaleString('en-US')}
+              Total Expense: $ {totalExpense.toLocaleString('en-US')}
             </span>
             <span className={totalBalance >= 0 ? 'text-green-700' : 'text-red-700'}>
-              Balance: RWF {totalBalance.toLocaleString('en-US')}
+              Balance: $ {totalBalance.toLocaleString('en-US')}
             </span>
           </div>
         </div>
@@ -241,6 +267,7 @@ const Reports = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assigned User</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total Income</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total Expense</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Balance</th>
@@ -254,16 +281,24 @@ const Reports = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{project.project_name}</div>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-600">
+                      <div className="font-medium">{project.username || 'N/A'}</div>
+                      {project.email && (
+                        <div className="text-xs text-gray-500">{project.email}</div>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-green-600 font-semibold">
-                    RWF {project.total_income?.toLocaleString('en-US') || '0'}
+                    $ {project.total_income?.toLocaleString('en-US') || '0'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-red-600 font-semibold">
-                    RWF {project.total_expense?.toLocaleString('en-US') || '0'}
+                    $ {project.total_expense?.toLocaleString('en-US') || '0'}
                   </td>
                   <td className={`px-6 py-4 whitespace-nowrap text-right text-sm font-bold ${
                     (project.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    RWF {project.balance?.toLocaleString('en-US') || '0'}
+                    $ {project.balance?.toLocaleString('en-US') || '0'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -278,14 +313,14 @@ const Reports = () => {
                     <div className="flex items-center justify-center gap-3">
                       <Link
                         to={`/projects/${project.id}`}
-                        className="text-primary-600 hover:text-primary-900 font-medium"
+                        className="px-3 py-1.5 text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
                       >
-                        View Details
+                        View Project
                       </Link>
                       <button
                         onClick={() => handleDownloadProjectReport(project.id)}
                         disabled={downloadingProjectId === project.id}
-                        className="px-3 py-1.5 text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                       >
                         {downloadingProjectId === project.id ? 'Downloading...' : 'Download Report'}
                       </button>

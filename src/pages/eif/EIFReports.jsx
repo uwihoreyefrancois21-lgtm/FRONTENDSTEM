@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { eifGetReports, eifDownloadReport, eifGetProducts, eifGetCategories } from '../../services/eifService';
 import { toast } from 'react-toastify';
+import { eifDownloadReport, eifGetCategories, eifGetProducts, eifGetReports } from '../../services/eifService';
 
 const EIFReports = () => {
   const [reportData, setReportData] = useState(null);
@@ -100,7 +100,7 @@ const EIFReports = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `eif-report-${Date.now()}.pdf`;
+      a.download = 'Export-Import & Finance Report.pdf';
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -288,16 +288,20 @@ const EIFReports = () => {
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600">Total Imports</p>
-                <p className="text-2xl font-bold text-green-600">${parseFloat(reportData.summary?.total_import_amount || 0).toFixed(2)}</p>
+                <p className="text-2xl font-bold text-green-600">RWF{parseFloat(reportData.summary?.total_import_amount || 0).toFixed(2)}</p>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600">Total Exports</p>
-                <p className="text-2xl font-bold text-purple-600">${parseFloat(reportData.summary?.total_export_amount || 0).toFixed(2)}</p>
+                <p className="text-2xl font-bold text-purple-600">RWF{parseFloat(reportData.summary?.total_export_amount || 0).toFixed(2)}</p>
               </div>
               <div className="bg-yellow-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-600">Net Profit</p>
-                <p className={`text-2xl font-bold ${parseFloat(reportData.summary?.net_profit || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  ${parseFloat(reportData.summary?.net_profit || 0).toFixed(2)}
+                <p
+                  className={`text-2xl font-bold ${
+                    parseFloat(reportData.summary?.net_profit || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}
+                >
+                  RWF{parseFloat(reportData.summary?.net_profit || 0).toFixed(2)}
                 </p>
               </div>
             </div>
@@ -332,16 +336,26 @@ const EIFReports = () => {
                           <tr key={op.id}>
                             <td className="px-6 py-4 text-sm text-gray-900">{op.reference || `#${op.id}`}</td>
                             <td className="px-6 py-4 text-sm">
-                              <span className={`px-2 py-1 rounded text-xs ${op.type === 'IMPORT' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
+                              <span
+                                className={`px-2 py-1 rounded text-xs ${
+                                  op.type === 'IMPORT' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                                }`}
+                              >
                                 {op.type}
                               </span>
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-900">{op.owner_name || 'N/A'}</td>
                             <td className="px-6 py-4 text-sm text-gray-900">{op.partner_name || 'N/A'}</td>
                             <td className="px-6 py-4 text-sm text-gray-900">{op.operation_date}</td>
-                            <td className="px-6 py-4 text-sm font-medium">${parseFloat(op.total_amount || 0).toFixed(2)}</td>
+                            <td className="px-6 py-4 text-sm font-medium">RWF{parseFloat(op.total_amount || 0).toFixed(2)}</td>
                             <td className="px-6 py-4 text-sm">
-                              <span className={`px-2 py-1 rounded text-xs ${op.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                              <span
+                                className={`px-2 py-1 rounded text-xs ${
+                                  op.status === 'COMPLETED'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-yellow-100 text-yellow-800'
+                                }`}
+                              >
                                 {op.status}
                               </span>
                             </td>
@@ -380,7 +394,7 @@ const EIFReports = () => {
                             <button
                               key={page}
                               onClick={() => setCurrentPage(page)}
-                              className={`px-3 py-2 text-sm font-medium rounded-md ${
+                              className={`px-3 py-2 text-sm font-medium rounded-md RWF{
                                 currentPage === page
                                   ? 'bg-purple-600 text-white'
                                   : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'

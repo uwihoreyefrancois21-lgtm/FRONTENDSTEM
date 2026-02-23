@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { eifGetExpenses, eifCreateExpense, eifUpdateExpense, eifDeleteExpense, eifGetProducts } from '../../services/eifService';
 import { toast } from 'react-toastify';
 import Pagination from '../../components/Pagination';
+import { eifCreateExpense, eifDeleteExpense, eifGetExpenses, eifGetProducts, eifUpdateExpense } from '../../services/eifService';
 
 const EIFExpenses = () => {
   const [expenses, setExpenses] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,6 +41,8 @@ const EIFExpenses = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (saving) return;
+    setSaving(true);
     try {
       if (editingExpense) {
         await eifUpdateExpense(editingExpense.id, formData);
@@ -55,6 +58,8 @@ const EIFExpenses = () => {
       fetchData();
     } catch (error) {
       toast.error('Operation failed');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -117,7 +122,7 @@ const EIFExpenses = () => {
                       <span className="text-gray-400">No product</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-sm font-medium text-red-600">${parseFloat(exp.amount || 0).toFixed(2)}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-red-600">RWF{parseFloat(exp.amount || 0).toFixed(2)}</td>
                   <td className="px-6 py-4 text-sm text-gray-900">{exp.expense_date}</td>
                   <td className="px-6 py-4 text-sm">
                     <button onClick={() => { setEditingExpense(exp); setFormData({ title: exp.title, amount: exp.amount, expense_date: exp.expense_date, product_id: exp.product_id || '' }); setShowModal(true); }} className="text-blue-600 hover:text-blue-800 mr-3">Edit</button>
@@ -171,8 +176,20 @@ const EIFExpenses = () => {
                 <p className="mt-1 text-xs text-gray-500">Assign this expense to a specific product</p>
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">{editingExpense ? 'Update' : 'Create'}</button>
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : editingExpense ? 'Update' : 'Create'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>

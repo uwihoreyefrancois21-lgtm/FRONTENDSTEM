@@ -67,7 +67,7 @@ const EIFStock = () => {
       if (stockRes.success) {
         setAllStock(stockRes.data || []);
         setStock(stockRes.data || []);
-        toast.success(`Found ${stockRes.data?.length || 0} stock items`);
+        toast.success(`Found RWF{stockRes.data?.length || 0} stock items`);
       } else {
         toast.error(stockRes.message || 'Failed to load stock');
       }
@@ -365,8 +365,8 @@ const EIFStock = () => {
                   <td className="px-6 py-4 text-sm text-gray-600">{item.category_name || 'N/A'}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{item.unit || 'N/A'}</td>
                   <td className="px-6 py-4 text-sm font-bold text-gray-900">{parseFloat(item.quantity).toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">${parseFloat(item.buy_price || 0).toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">${parseFloat(item.sell_price || 0).toFixed(2)}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">RWF{parseFloat(item.buy_price || 0).toFixed(2)}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">RWF{parseFloat(item.sell_price || 0).toFixed(2)}</td>
                   <td className="px-6 py-4 text-sm">
                     {parseFloat(item.quantity) < 10 ? (
                       <span className="px-2 py-1 rounded text-xs bg-red-100 text-red-800">Low Stock</span>
@@ -436,7 +436,7 @@ const EIFStock = () => {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Buy Price ($)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Buy Price (RWF)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -446,10 +446,10 @@ const EIFStock = () => {
                   className="w-full px-3 py-2 border rounded-lg"
                   placeholder="Enter buy price"
                 />
-                <p className="text-xs text-gray-500 mt-1">Current: ${parseFloat(editingStock.buy_price || 0).toFixed(2)}</p>
+                <p className="text-xs text-gray-500 mt-1">Current: RWF{parseFloat(editingStock.buy_price || 0).toFixed(2)}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Sell Price ($)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Sell Price (RWF)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -459,7 +459,7 @@ const EIFStock = () => {
                   className="w-full px-3 py-2 border rounded-lg"
                   placeholder="Enter sell price"
                 />
-                <p className="text-xs text-gray-500 mt-1">Current: ${parseFloat(editingStock.sell_price || 0).toFixed(2)}</p>
+                <p className="text-xs text-gray-500 mt-1">Current: RWF{parseFloat(editingStock.sell_price || 0).toFixed(2)}</p>
               </div>
               <div className="flex gap-2">
                 <button

@@ -215,7 +215,7 @@ const EIFProductLosses = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{loss.product_name || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{loss.category_name || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
+                      <span className={`px-2 py-1 text-xs rounded-full RWF{
                         loss.loss_type === 'EXPIRED' 
                           ? 'bg-red-100 text-red-800' 
                           : 'bg-orange-100 text-orange-800'

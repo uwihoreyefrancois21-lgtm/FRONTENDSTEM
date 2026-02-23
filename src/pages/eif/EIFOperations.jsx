@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
-import { 
-  eifGetOperations, 
-  eifGetProducts, 
-  eifGetPartners, 
-  eifCreateOperation,
-  eifGetOperation,
-  eifUpdateOperation,
-  eifDeleteOperation,
-  eifGetCategories,
-  eifGetOperationSummary
-} from '../../services/eifService';
 import { toast } from 'react-toastify';
 import Pagination from '../../components/Pagination';
+import {
+    eifCreateOperation,
+    eifDeleteOperation,
+    eifGetCategories,
+    eifGetOperation,
+    eifGetOperations,
+    eifGetOperationSummary,
+    eifGetPartners,
+    eifGetProducts,
+    eifUpdateOperation
+} from '../../services/eifService';
 
 const EIFOperations = () => {
   const [operations, setOperations] = useState([]);
@@ -33,6 +33,7 @@ const EIFOperations = () => {
     total_export_quantity: 0,
     total_stock_quantity: 0
   });
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     type: 'IMPORT',
     partner_id: '',
@@ -112,20 +113,18 @@ const EIFOperations = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (saving) return;
     try {
+      setSaving(true);
       // Filter and validate items
       const validItems = formData.items.filter(item => {
         const hasRequired = item.product_id && item.quantity && item.price;
-        // For IMPORT operations, expiry_date is required
-        if (formData.type === 'IMPORT' && !item.expiry_date) {
-          return false;
-        }
         return hasRequired;
       });
       
       if (validItems.length === 0) {
         if (formData.type === 'IMPORT') {
-          toast.error('Please add at least one item with product, quantity, price, and expiry date');
+          toast.error('Please add at least one item with product, quantity, and price');
         } else {
           toast.error('Please add at least one item with product, quantity, and price');
         }
@@ -169,21 +168,21 @@ const EIFOperations = () => {
               expiry_date: item.expiry_date || null
             }))
           };
-          const response = await eifCreateOperation(operationData);
+        const response = await eifCreateOperation(operationData);
         if (response.success) {
-        toast.success('Operation created successfully');
-        setShowModal(false);
-        setFormData({
-          type: 'IMPORT',
-          partner_id: '',
-          reference: '',
-          operation_date: new Date().toISOString().split('T')[0],
-          status: 'PENDING',
-          items: [{ product_id: '', quantity: '', price: '', expiry_date: '' }]
-        });
-        setCurrentPage(1);
-        fetchData();
-        fetchSummary();
+          toast.success('Operation created successfully');
+          setShowModal(false);
+          setFormData({
+            type: 'IMPORT',
+            partner_id: '',
+            reference: '',
+            operation_date: new Date().toISOString().split('T')[0],
+            status: 'PENDING',
+            items: [{ product_id: '', quantity: '', price: '', expiry_date: '' }]
+          });
+          setCurrentPage(1);
+          fetchData();
+          fetchSummary();
         } else {
           toast.error(response.message || 'Failed to create operation');
         }
@@ -192,6 +191,8 @@ const EIFOperations = () => {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to create operation';
       toast.error(errorMessage);
       console.error('Error creating operation:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -303,11 +304,11 @@ const EIFOperations = () => {
               return currentOperations.map(op => (
                 <tr key={op.id}>
                   <td className="px-6 py-4 text-sm text-gray-900">{op.reference || 'N/A'}</td>
-                  <td className="px-6 py-4 text-sm"><span className={`px-2 py-1 rounded text-xs ${op.type === 'IMPORT' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>{op.type}</span></td>
+                  <td className="px-6 py-4 text-sm"><span className={`px-2 py-1 rounded text-xs RWF{op.type === 'IMPORT' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>{op.type}</span></td>
                   <td className="px-6 py-4 text-sm text-gray-900">{op.partner_name || 'N/A'}</td>
                   <td className="px-6 py-4 text-sm text-gray-900">{op.operation_date}</td>
-                  <td className="px-6 py-4 text-sm font-medium">${parseFloat(op.total_amount || 0).toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm"><span className={`px-2 py-1 rounded text-xs ${op.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{op.status}</span></td>
+                  <td className="px-6 py-4 text-sm font-medium">RWF{parseFloat(op.total_amount || 0).toFixed(2)}</td>
+                  <td className="px-6 py-4 text-sm"><span className={`px-2 py-1 rounded text-xs RWF{op.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{op.status}</span></td>
                   <td className="px-6 py-4 text-sm">
                     <button
                       onClick={() => {
@@ -395,18 +396,19 @@ const EIFOperations = () => {
                   <input type="text" value={formData.reference} onChange={(e) => setFormData({ ...formData, reference: e.target.value })} className="w-full px-3 py-2 border rounded-lg" />
                 </div>
               </div>
-              {editingOperation && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status *</label>
-                  <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full px-3 py-2 border rounded-lg" required>
-                    <option value="PENDING">PENDING</option>
-                    <option value="COMPLETED">COMPLETED</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">Note: Items cannot be edited. Create a new operation to change items.</p>
-                </div>
-              )}
-              {!editingOperation && (
-                <div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status *</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                >
+                  <option value="PENDING">PENDING</option>
+                  <option value="COMPLETED">COMPLETED</option>
+                </select>
+              </div>
+              <div>
                   <div className="flex justify-between items-center mb-2">
                     <label className="block text-sm font-medium text-gray-700">Items *</label>
                     <button type="button" onClick={addItem} className="text-sm text-purple-600 hover:text-purple-700">+ Add Item</button>
@@ -424,38 +426,45 @@ const EIFOperations = () => {
                       </div>
                       {formData.type === 'IMPORT' && (
                         <div className="mt-2">
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Expiry Date * (Required for imports)</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Expiry Date</label>
                           <input 
                             type="date" 
                             value={item.expiry_date} 
                             onChange={(e) => updateItem(index, 'expiry_date', e.target.value)} 
                             className="w-full px-3 py-2 border rounded-lg bg-white" 
-                            required 
                           />
                         </div>
                       )}
                     </div>
                   ))}
                 </div>
-              )}
-              {editingOperation && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Operation Items (Read-only)</label>
-                  {formData.items.map((item, index) => {
-                    const product = products.find(p => p.id === item.product_id);
-                    return (
-                      <div key={index} className="mb-2 p-2 bg-white rounded border">
-                        <p className="text-sm"><strong>Product:</strong> {product?.name || 'N/A'}</p>
-                        <p className="text-sm"><strong>Quantity:</strong> {item.quantity} {product?.unit || ''}</p>
-                        <p className="text-sm"><strong>Price:</strong> ${parseFloat(item.price || 0).toFixed(2)}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">{editingOperation ? 'Update' : 'Create'}</button>
-                <button type="button" onClick={() => { setShowModal(false); setEditingOperation(null); setFormData({ type: 'IMPORT', partner_id: '', reference: '', operation_date: new Date().toISOString().split('T')[0], status: 'PENDING', items: [{ product_id: '', quantity: '', price: '' }] }); }} className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : editingOperation ? 'Update' : 'Create'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (saving) return;
+                    setShowModal(false);
+                    setEditingOperation(null);
+                    setFormData({
+                      type: 'IMPORT',
+                      partner_id: '',
+                      reference: '',
+                      operation_date: new Date().toISOString().split('T')[0],
+                      status: 'PENDING',
+                      items: [{ product_id: '', quantity: '', price: '', expiry_date: '' }]
+                    });
+                  }}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>

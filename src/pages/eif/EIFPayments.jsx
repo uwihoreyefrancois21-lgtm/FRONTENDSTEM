@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { eifGetPayments, eifGetOperations, eifCreatePayment, eifUpdatePayment, eifDeletePayment } from '../../services/eifService';
 import { toast } from 'react-toastify';
 import Pagination from '../../components/Pagination';
+import { eifCreatePayment, eifDeletePayment, eifGetOperations, eifGetPayments, eifUpdatePayment } from '../../services/eifService';
 
 const EIFPayments = () => {
   const [payments, setPayments] = useState([]);
@@ -12,6 +12,7 @@ const EIFPayments = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const [formData, setFormData] = useState({ operation_id: '', amount: '', method: 'CASH', status: 'PAID', paid_at: new Date().toISOString().split('T')[0] });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -31,6 +32,8 @@ const EIFPayments = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (saving) return;
+    setSaving(true);
     try {
       if (editingPayment) {
         await eifUpdatePayment(editingPayment.id, formData);
@@ -46,6 +49,8 @@ const EIFPayments = () => {
       fetchData();
     } catch (error) {
       toast.error('Failed to save payment');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -132,11 +137,11 @@ const EIFPayments = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      ${operationTotal.toFixed(2)}
+                      RWF{operationTotal.toFixed(2)}
                       <div className="text-xs text-gray-400 mt-1">Operation Total</div>
                     </td>
                     <td className="px-6 py-4 text-sm font-medium">
-                      ${parseFloat(p.amount || 0).toFixed(2)}
+                      RWF{parseFloat(p.amount || 0).toFixed(2)}
                       <div className="text-xs text-gray-400 mt-1">Payment Made/Received</div>
                       {operationTotal > 0 && (
                         <div className="text-xs mt-1">
@@ -226,8 +231,8 @@ const EIFPayments = () => {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                 <p className="text-sm text-blue-800 font-medium mb-1">💡 How Payments Work:</p>
                 <ul className="text-xs text-blue-700 space-y-1 ml-4 list-disc">
-                  <li><strong>Operation Amount:</strong> Total value of the operation (e.g., $1000 for importing products)</li>
-                  <li><strong>Payment Amount:</strong> Actual money paid/received (can be partial, e.g., $500 now, $500 later)</li>
+                  <li><strong>Operation Amount:</strong> Total value of the operation (e.g., RWF1000 for importing products)</li>
+                  <li><strong>Payment Amount:</strong> Actual money paid/received (can be partial, e.g., RWF500 now, RWF500 later)</li>
                   <li><strong>Export Operation:</strong> Payments received = <span className="font-semibold text-green-700">Income</span> (money coming in)</li>
                   <li><strong>Import Operation:</strong> Payments made = <span className="font-semibold text-red-700">Expense</span> (money going out)</li>
                 </ul>
@@ -246,7 +251,8 @@ const EIFPayments = () => {
                   <option value="">Select Operation</option>
                   {operations.map(op => (
                     <option key={op.id} value={op.id}>
-                      {op.reference || `#${op.id}`} — {op.type === 'IMPORT' ? 'Import' : 'Export'} — Total: ${parseFloat(op.total_amount || 0).toFixed(2)}
+                      {op.reference || `#${op.id}`} — {op.type === 'IMPORT' ? 'Import' : 'Export'} — Total: RWF
+                      {parseFloat(op.total_amount || 0).toFixed(2)}
                       {op.product_names ? ` | ${op.product_names}` : ''}
                     </option>
                   ))}
@@ -257,7 +263,7 @@ const EIFPayments = () => {
                     return (
                       <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
                         <p><strong>Operation Type:</strong> {selectedOp.type === 'EXPORT' ? 'Export (Income)' : 'Import (Expense)'}</p>
-                        <p><strong>Operation Total:</strong> ${parseFloat(selectedOp.total_amount || 0).toFixed(2)}</p>
+                        <p><strong>Operation Total:</strong> RWF{parseFloat(selectedOp.total_amount || 0).toFixed(2)}</p>
                         <p className="text-gray-600 mt-1">
                           {selectedOp.type === 'EXPORT' 
                             ? 'This payment will be recorded as Income (money received)' 
@@ -291,10 +297,10 @@ const EIFPayments = () => {
                     const remaining = operationTotal - paymentAmount;
                     return (
                       <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                        <p><strong>Operation Total:</strong> ${operationTotal.toFixed(2)}</p>
-                        <p><strong>Payment Amount:</strong> ${paymentAmount.toFixed(2)}</p>
+                        <p><strong>Operation Total:</strong> RWF{operationTotal.toFixed(2)}</p>
+                        <p><strong>Payment Amount:</strong> RWF{paymentAmount.toFixed(2)}</p>
                         <p className={remaining > 0 ? 'text-orange-600 font-medium' : remaining < 0 ? 'text-red-600 font-medium' : 'text-green-600 font-medium'}>
-                          <strong>Remaining:</strong> ${remaining.toFixed(2)}
+                          <strong>Remaining:</strong> RWF{remaining.toFixed(2)}
                           {remaining > 0 && ' (Partial payment)'}
                           {remaining < 0 && ' (Overpayment)'}
                           {remaining === 0 && ' (Fully paid)'}
@@ -325,8 +331,31 @@ const EIFPayments = () => {
                 <input type="date" value={formData.paid_at} onChange={(e) => setFormData({ ...formData, paid_at: e.target.value })} className="w-full px-3 py-2 border rounded-lg" />
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">{editingPayment ? 'Update' : 'Create'}</button>
-                <button type="button" onClick={() => { setShowModal(false); setEditingPayment(null); setFormData({ operation_id: '', amount: '', method: 'CASH', status: 'PAID', paid_at: new Date().toISOString().split('T')[0] }); }} className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : editingPayment ? 'Update' : 'Create'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (saving) return;
+                    setShowModal(false);
+                    setEditingPayment(null);
+                    setFormData({
+                      operation_id: '',
+                      amount: '',
+                      method: 'CASH',
+                      status: 'PAID',
+                      paid_at: new Date().toISOString().split('T')[0]
+                    });
+                  }}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>

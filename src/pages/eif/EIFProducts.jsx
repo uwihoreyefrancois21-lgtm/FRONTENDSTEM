@@ -162,8 +162,8 @@ const EIFProducts = () => {
                   <td className="px-6 py-4 text-sm text-gray-900">{product.name}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{product.category_name || 'N/A'}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{product.unit || 'N/A'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">${parseFloat(product.buy_price || 0).toFixed(2)}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">${parseFloat(product.sell_price || 0).toFixed(2)}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">RWF{parseFloat(product.buy_price || 0).toFixed(2)}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">RWF{parseFloat(product.sell_price || 0).toFixed(2)}</td>
                   <td className="px-6 py-4 text-sm">
                     <button
                       onClick={() => {

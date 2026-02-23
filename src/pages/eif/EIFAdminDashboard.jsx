@@ -176,7 +176,7 @@ const EIFAdminDashboard = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `eif-report-${selectedAccount}-${Date.now()}.pdf`;
+      a.download = `eif-report-RWF{selectedAccount}-RWF{Date.now()}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -209,13 +209,13 @@ const EIFAdminDashboard = () => {
         <div className="flex gap-2">
           <button
             onClick={() => { setView('dashboard'); setSelectedAccount(null); }}
-            className={`px-4 py-2 rounded-lg ${view === 'dashboard' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`px-4 py-2 rounded-lg RWF{view === 'dashboard' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
           >
             Dashboard
           </button>
           <button
             onClick={() => { setView('accounts'); setSelectedAccount(null); }}
-            className={`px-4 py-2 rounded-lg ${view === 'accounts' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`px-4 py-2 rounded-lg RWF{view === 'accounts' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
           >
             Manage Accounts
           </button>
@@ -250,7 +250,7 @@ const EIFAdminDashboard = () => {
                 <div key={op.type} className="p-4 bg-gray-50 rounded">
                   <p className="text-sm text-gray-600">{op.type}</p>
                   <p className="text-2xl font-bold">{op.count}</p>
-                  <p className="text-sm text-gray-500">Total: ${parseFloat(op.total_amount || 0).toFixed(2)}</p>
+                  <p className="text-sm text-gray-500">Total: RWF{parseFloat(op.total_amount || 0).toFixed(2)}</p>
                 </div>
               ))}
             </div>
@@ -300,7 +300,7 @@ const EIFAdminDashboard = () => {
                     <td className="px-6 py-4 text-sm text-gray-900">{account.email}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{account.company_name}</td>
                     <td className="px-6 py-4 text-sm">
-                      <span className={`px-2 py-1 rounded text-xs ${
+                      <span className={`px-2 py-1 rounded text-xs RWF{
                         account.subscription_status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
                         {account.subscription_status}
@@ -385,7 +385,7 @@ const EIFAdminDashboard = () => {
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Status</p>
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold RWF{
                       editFormData.subscription_status === 'ACTIVE' 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-red-100 text-red-800'
@@ -407,7 +407,7 @@ const EIFAdminDashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Role</p>
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold RWF{
                       editFormData.role === 'admin' 
                         ? 'bg-purple-100 text-purple-800' 
                         : 'bg-blue-100 text-blue-800'
@@ -502,16 +502,16 @@ const EIFAdminDashboard = () => {
                     <tr key={op.id}>
                       <td className="px-6 py-4 text-sm">{op.reference || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm">
-                        <span className={`px-2 py-1 rounded text-xs ${
+                        <span className={`px-2 py-1 rounded text-xs RWF{
                           op.type === 'IMPORT' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
                         }`}>
                           {op.type}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm">{op.operation_date}</td>
-                      <td className="px-6 py-4 text-sm">${parseFloat(op.total_amount || 0).toFixed(2)}</td>
+                      <td className="px-6 py-4 text-sm">RWF{parseFloat(op.total_amount || 0).toFixed(2)}</td>
                       <td className="px-6 py-4 text-sm">
-                        <span className={`px-2 py-1 rounded text-xs ${
+                        <span className={`px-2 py-1 rounded text-xs RWF{
                           op.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                         }`}>
                           {op.status}

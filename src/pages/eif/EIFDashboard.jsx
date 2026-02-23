@@ -239,7 +239,7 @@ const EIFDashboard = () => {
                   <tr key={op.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm text-gray-900">{op.reference || 'N/A'}</td>
                     <td className="px-4 py-3 text-sm">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      <span className={`px-2 py-1 rounded text-xs font-medium RWF{
                         op.type === 'IMPORT' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
                       }`}>
                         {op.type}
@@ -248,10 +248,10 @@ const EIFDashboard = () => {
                     <td className="px-4 py-3 text-sm text-gray-900">{op.partner_name || 'N/A'}</td>
                     <td className="px-4 py-3 text-sm text-gray-900">{op.operation_date || 'N/A'}</td>
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                      ${parseFloat(op.total_amount || 0).toFixed(2)}
+                      RWF{parseFloat(op.total_amount || 0).toFixed(2)}
                     </td>
                     <td className="px-4 py-3 text-sm">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      <span className={`px-2 py-1 rounded text-xs font-medium RWF{
                         op.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                       }`}>
                         {op.status}
@@ -291,7 +291,7 @@ const EIFDashboard = () => {
               <div className="space-y-2 text-gray-600">
                 <p><strong>Subscription Plan:</strong> {account?.subscription_plan || 'PRO'}</p>
                 <p><strong>Subscription Status:</strong> 
-                  <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                  <span className={`ml-2 px-2 py-1 rounded text-xs RWF{
                     account?.subscription_status === 'ACTIVE' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-red-100 text-red-800'

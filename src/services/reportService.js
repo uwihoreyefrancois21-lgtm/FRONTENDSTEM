@@ -10,7 +10,7 @@ export const reportService = {
   downloadProjectReport: async (id, params = {}) => {
     const token = localStorage.getItem('token');
     const response = await axios.get(
-      `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/reports/project/${id}/export`,
+      `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/reports/project/${id}/export`,
       {
         params,
         responseType: 'arraybuffer',

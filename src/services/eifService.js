@@ -59,7 +59,7 @@ export const eifGetReports = (params) => api.get('/eif/reports', { params });
 export const eifDownloadReport = async (params) => {
   const queryString = new URLSearchParams(params).toString();
   const token = localStorage.getItem('token');
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
   const response = await fetch(`${API_URL}/eif/reports/download?${queryString}`, {
     headers: {
       'Authorization': `Bearer ${token}`

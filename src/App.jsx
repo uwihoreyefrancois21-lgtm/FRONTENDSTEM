@@ -36,6 +36,7 @@ import EIFRegister from './pages/eif/EIFRegister';
 import EIFReports from './pages/eif/EIFReports';
 import EIFStock from './pages/eif/EIFStock';
 import SystemManagement from './pages/SystemManagement';
+import WhereSystemsApply from './pages/WhereSystemsApply';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
         <div className="min-h-screen bg-gray-50">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/where-systems-apply" element={<WhereSystemsApply />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/auth" element={<Auth />} />

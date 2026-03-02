@@ -99,6 +99,12 @@ const Home = () => {
               <a href="#pricing" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
                 Pricing
               </a>
+              <Link 
+                to="/where-systems-apply" 
+                className="text-gray-700 hover:text-primary-600 font-medium transition-colors"
+              >
+                Where Our Systems Apply
+              </Link>
             </nav>
             <div className="flex items-center space-x-4">
               {user ? (
@@ -177,7 +183,7 @@ const Home = () => {
               <p className="text-center text-xl md:text-2xl text-blue-100 mb-10 max-w-2xl mx-auto">
                 Take control of your projects and international trade: manage projects, imports, exports, stock and finance in one powerful system.
               </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <div className="flex flex-col sm:flex-row justify-center gap-4 mb-4">
                 <Link 
                   to={user ? "/dashboard" : "/auth"} 
                   className="bg-white text-primary-700 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
@@ -190,6 +196,15 @@ const Home = () => {
                 >
                   View Pricing
                 </a>
+              </div>
+              <div className="flex justify-center">
+                <Link
+                  to="/where-systems-apply"
+                  className="inline-flex items-center gap-2 bg-black/40 hover:bg-black/60 px-5 py-3 rounded-full text-sm md:text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 shadow-md hover:shadow-xl"
+                >
+                  <span>🌍 See Where Our Systems Apply</span>
+                  <span className="text-lg">→</span>
+                </Link>
               </div>
             </div>
           </div>

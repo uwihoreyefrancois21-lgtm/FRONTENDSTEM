@@ -344,7 +344,7 @@ const Auth = () => {
               <div className="text-5xl mb-4">🚢</div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Export-Import & Finance</h2>
               <p className="text-gray-600">Complete Import/Export & Financial Management</p>
-              <p className="text-sm text-purple-600 font-semibold mt-2">$12/month</p>
+              <p className="text-sm text-purple-600 font-semibold mt-2">$10/month</p>
             </div>
 
             {/* Toggle Login/Register */}

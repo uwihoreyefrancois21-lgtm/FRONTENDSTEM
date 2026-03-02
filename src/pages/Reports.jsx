@@ -119,14 +119,14 @@ const Reports = () => {
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md p-6 text-white">
           <p className="text-sm opacity-90">Total Income</p>
           <p className="text-3xl font-bold mt-2">
-            $ {totalIncome.toLocaleString('en-US')}
+            RWF {totalIncome.toLocaleString('en-US')}
           </p>
         </div>
 
         <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-md p-6 text-white">
           <p className="text-sm opacity-90">Total Expense</p>
           <p className="text-3xl font-bold mt-2">
-            $ {totalExpense.toLocaleString('en-US')}
+            RWF {totalExpense.toLocaleString('en-US')}
           </p>
         </div>
 
@@ -135,7 +135,7 @@ const Reports = () => {
         }`}>
           <p className="text-sm opacity-90">Net Balance</p>
           <p className="text-3xl font-bold mt-2">
-            $ {totalBalance.toLocaleString('en-US')}
+            RWF {totalBalance.toLocaleString('en-US')}
           </p>
         </div>
       </div>
@@ -247,21 +247,7 @@ const Reports = () => {
             </div>
           </div>
         </div>
-        {/* Overall financial summary for all projects */}
-        <div className="px-6 py-3 bg-blue-50 border-b border-gray-200">
-          <div className="flex flex-wrap items-center gap-4 text-sm font-semibold">
-            <span className="text-gray-700">All Projects Summary:</span>
-            <span className="text-green-600">
-              Total Income: $ {totalIncome.toLocaleString('en-US')}
-            </span>
-            <span className="text-red-600">
-              Total Expense: $ {totalExpense.toLocaleString('en-US')}
-            </span>
-            <span className={totalBalance >= 0 ? 'text-green-700' : 'text-red-700'}>
-              Balance: $ {totalBalance.toLocaleString('en-US')}
-            </span>
-          </div>
-        </div>
+        {/* Overall financial summary for all projects has been removed as per requirements */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
@@ -290,15 +276,15 @@ const Reports = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-green-600 font-semibold">
-                    $ {project.total_income?.toLocaleString('en-US') || '0'}
+                    RWF {project.total_income?.toLocaleString('en-US') || '0'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-red-600 font-semibold">
-                    $ {project.total_expense?.toLocaleString('en-US') || '0'}
+                    RWF {project.total_expense?.toLocaleString('en-US') || '0'}
                   </td>
                   <td className={`px-6 py-4 whitespace-nowrap text-right text-sm font-bold ${
                     (project.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    $ {project.balance?.toLocaleString('en-US') || '0'}
+                    RWF {project.balance?.toLocaleString('en-US') || '0'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${

@@ -290,7 +290,7 @@ const WhereSystemsApply = () => {
                   <p className="text-sm md:text-base text-purple-900">
                     The Import &amp; Export Financial System helps you manage{' '}
                     <span className="font-semibold">
-                      shipment costs, customs &amp; tax payments, supplier &amp; buyer transactions and profit per shipment
+                      shipment costs, customs &amp; supplier &amp; buyer transactions and profit per shipment
                     </span>{' '}
                     with clear financial reporting.
                   </p>

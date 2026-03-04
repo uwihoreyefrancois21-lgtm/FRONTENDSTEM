@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import WhatsAppButton from '../components/WhatsAppButton';
 import { useAuth } from '../contexts/AuthContext';
+import { FaBars, FaTimes } from 'react-icons/fa';
 
 const FeatureCard = ({ icon, title, description }) => (
   <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -51,6 +52,7 @@ const PricingCard = ({ plan, price, features, popular = false }) => (
 
 const Home = () => {
   const { user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const features = [
     {
@@ -132,8 +134,82 @@ const Home = () => {
                   </Link>
                 </>
               )}
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden text-gray-700 hover:text-primary-600 transition-colors p-2"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+              </button>
             </div>
           </div>
+          
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden mt-4 pt-4 border-t border-gray-200">
+              <nav className="flex flex-col space-y-4">
+                <a 
+                  href="#features" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors py-2"
+                >
+                  Features
+                </a>
+                <a 
+                  href="#how-it-works" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors py-2"
+                >
+                  How It Works
+                </a>
+                <a 
+                  href="#pricing" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors py-2"
+                >
+                  Pricing
+                </a>
+                <Link 
+                  to="/where-systems-apply" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-primary-600 font-medium transition-colors py-2"
+                >
+                  Where Our Systems Apply
+                </Link>
+                
+                {/* Mobile Action Buttons */}
+                <div className="pt-4 border-t border-gray-200 space-y-3">
+                  {user ? (
+                    <Link 
+                      to="/dashboard" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block w-full bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg text-center"
+                    >
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <>
+                      <Link 
+                        to="/auth" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block w-full text-gray-700 hover:text-primary-600 font-medium transition-colors py-2 text-center"
+                      >
+                        Sign In
+                      </Link>
+                      <Link 
+                        to="/auth" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block w-full bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg text-center"
+                      >
+                        Get Started
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </nav>
+            </div>
+          )}
         </div>
       </header>
 

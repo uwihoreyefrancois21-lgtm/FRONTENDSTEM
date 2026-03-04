@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
-  eifGetAccount,
-  eifGetExpenses,
-  eifGetOperations,
-  eifGetPayments,
-  eifGetStock
+    eifGetAccount,
+    eifGetExpenses,
+    eifGetOperations,
+    eifGetPayments,
+    eifGetStock
 } from '../../services/eifService';
 
 const EIFDashboard = () => {
@@ -94,127 +94,127 @@ const EIFDashboard = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="w-full">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-2">
             Welcome back, {account?.owner_name}! Overview of your Export-Import & Finance operations
           </p>
           {account && (
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
               {account.company_name} • Subscription: {account.subscription_status}
             </p>
           )}
         </div>
         <Link 
           to="/eif/profile-settings" 
-          className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 text-center"
         >
           Profile Settings
         </Link>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Operations</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalOperations}</p>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-600">Total Operations</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{stats.totalOperations}</p>
               <p className="text-xs text-gray-500 mt-1">{stats.pendingOperations} pending</p>
             </div>
-            <div className="bg-blue-100 p-3 rounded-full">
-              <span className="text-3xl">🚢</span>
+            <div className="bg-blue-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
+              <span className="text-2xl sm:text-3xl">🚢</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Stock Items</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalStockItems}</p>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-600">Stock Items</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{stats.totalStockItems}</p>
               {stats.lowStockItems > 0 && (
                 <p className="text-xs text-red-500 mt-1">{stats.lowStockItems} low stock</p>
               )}
             </div>
-            <div className="bg-green-100 p-3 rounded-full">
-              <span className="text-3xl">📦</span>
+            <div className="bg-green-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
+              <span className="text-2xl sm:text-3xl">📦</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Payments</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalPayments}</p>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-600">Payments</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{stats.totalPayments}</p>
             </div>
-            <div className="bg-purple-100 p-3 rounded-full">
-              <span className="text-3xl">💰</span>
+            <div className="bg-purple-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
+              <span className="text-2xl sm:text-3xl">💰</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Expenses</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalExpenses}</p>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-600">Expenses</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{stats.totalExpenses}</p>
             </div>
-            <div className="bg-red-100 p-3 rounded-full">
-              <span className="text-3xl">💸</span>
+            <div className="bg-red-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
+              <span className="text-2xl sm:text-3xl">💸</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-8">
         <Link
           to="/eif/products"
-          className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-center"
+          className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow text-center"
         >
-          <div className="text-4xl mb-2">📦</div>
-          <h3 className="font-semibold text-gray-900">Products</h3>
-          <p className="text-sm text-gray-600 mt-1">Manage products</p>
+          <div className="text-3xl sm:text-4xl mb-2">📦</div>
+          <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Products</h3>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1 hidden sm:block">Manage products</p>
         </Link>
 
         <Link
           to="/eif/partners"
-          className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-center"
+          className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow text-center"
         >
-          <div className="text-4xl mb-2">🤝</div>
-          <h3 className="font-semibold text-gray-900">Partners</h3>
-          <p className="text-sm text-gray-600 mt-1">Suppliers & Customers</p>
+          <div className="text-3xl sm:text-4xl mb-2">🤝</div>
+          <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Partners</h3>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1 hidden sm:block">Suppliers & Customers</p>
         </Link>
 
         <Link
           to="/eif/operations"
-          className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-center"
+          className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow text-center"
         >
-          <div className="text-4xl mb-2">🚢</div>
-          <h3 className="font-semibold text-gray-900">Operations</h3>
-          <p className="text-sm text-gray-600 mt-1">Import & Export</p>
+          <div className="text-3xl sm:text-4xl mb-2">🚢</div>
+          <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Operations</h3>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1 hidden sm:block">Import & Export</p>
         </Link>
 
         <Link
           to="/eif/stock"
-          className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-center"
+          className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow text-center"
         >
-          <div className="text-4xl mb-2">📊</div>
-          <h3 className="font-semibold text-gray-900">Stock</h3>
-          <p className="text-sm text-gray-600 mt-1">View inventory</p>
+          <div className="text-3xl sm:text-4xl mb-2">📊</div>
+          <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Stock</h3>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1 hidden sm:block">View inventory</p>
         </Link>
       </div>
 
       {/* Recent Operations */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Recent Operations</h2>
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 overflow-hidden">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900">Recent Operations</h2>
           <Link
             to="/eif/operations"
-            className="text-purple-600 hover:text-purple-700 text-sm font-medium"
+            className="text-purple-600 hover:text-purple-700 text-xs sm:text-sm font-medium"
           >
             View All →
           </Link>
@@ -222,36 +222,36 @@ const EIFDashboard = () => {
         {recentOperations.length === 0 ? (
           <p className="text-gray-500 text-center py-8">No operations yet</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-x-auto -mx-4 sm:-mx-6 sm:mx-0">
+            <table className="w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reference</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Partner</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reference</th>
+                  <th className="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                  <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Partner</th>
+                  <th className="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                  <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {recentOperations.map((op) => (
                   <tr key={op.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm text-gray-900">{op.reference || 'N/A'}</td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className={`px-2 py-1 rounded text-xs font-medium RWF{
+                    <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm text-gray-900 truncate">{op.reference || 'N/A'}</td>
+                    <td className="hidden sm:table-cell px-4 py-3 text-xs sm:text-sm">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
                         op.type === 'IMPORT' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
                       }`}>
                         {op.type}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-900">{op.partner_name || 'N/A'}</td>
-                    <td className="px-4 py-3 text-sm text-gray-900">{op.operation_date || 'N/A'}</td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                    <td className="hidden md:table-cell px-4 py-3 text-xs sm:text-sm text-gray-900">{op.partner_name || 'N/A'}</td>
+                    <td className="hidden lg:table-cell px-4 py-3 text-xs sm:text-sm text-gray-900">{op.operation_date || 'N/A'}</td>
+                    <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium text-gray-900">
                       RWF{parseFloat(op.total_amount || 0).toFixed(2)}
                     </td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className={`px-2 py-1 rounded text-xs font-medium RWF{
+                    <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
                         op.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                       }`}>
                         {op.status}
@@ -266,16 +266,16 @@ const EIFDashboard = () => {
       </div>
 
       {/* About Section */}
-      <div className="bg-white rounded-lg shadow-md p-6 mt-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">About Export-Import & Finance System</h2>
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mt-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">About Export-Import & Finance System</h2>
         <div className="prose max-w-none">
-          <p className="text-gray-600 mb-4">
+          <p className="text-xs sm:text-sm text-gray-600 mb-4">
             The Export-Import & Finance System is a comprehensive solution designed to help businesses manage their import and export operations, track inventory, handle payments, and monitor expenses efficiently.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Key Features</h3>
-              <ul className="list-disc list-inside space-y-2 text-gray-600">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Key Features</h3>
+              <ul className="list-disc list-inside space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
                 <li>Import and Export Operations Management</li>
                 <li>Product and Category Management</li>
                 <li>Partner Management (Suppliers & Customers)</li>
@@ -287,11 +287,11 @@ const EIFDashboard = () => {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">System Information</h3>
-              <div className="space-y-2 text-gray-600">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">System Information</h3>
+              <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
                 <p><strong>Subscription Plan:</strong> {account?.subscription_plan || 'PRO'}</p>
                 <p><strong>Subscription Status:</strong> 
-                  <span className={`ml-2 px-2 py-1 rounded text-xs RWF{
+                  <span className={`ml-2 px-2 py-1 rounded text-xs ${
                     account?.subscription_status === 'ACTIVE' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-red-100 text-red-800'
@@ -312,8 +312,8 @@ const EIFDashboard = () => {
               </div>
             </div>
           </div>
-          <div className="mt-6 p-4 bg-purple-50 rounded-lg">
-            <p className="text-sm text-gray-700">
+          <div className="mt-6 p-3 sm:p-4 bg-purple-50 rounded-lg">
+            <p className="text-xs sm:text-sm text-gray-700">
               <strong>Need Help?</strong> Contact your system administrator for assistance with account management, subscription renewal, or any technical issues.
             </p>
           </div>

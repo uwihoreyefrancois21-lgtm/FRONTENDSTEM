@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  eifAdminDeleteAccount,
-  eifAdminGetAccount,
-  eifAdminGetAccountOperations,
-  eifAdminGetAccounts,
-  eifAdminGetAccountStock,
-  eifAdminGetDashboard,
-  eifAdminUpdateAccount,
-  eifDownloadReport
+    eifAdminDeleteAccount,
+    eifAdminGetAccount,
+    eifAdminGetAccountOperations,
+    eifAdminGetAccounts,
+    eifAdminGetAccountStock,
+    eifAdminGetDashboard,
+    eifAdminUpdateAccount,
+    eifDownloadReport
 } from '../../services/eifService';
 
 const EIFAdminDashboard = () => {
@@ -203,19 +203,19 @@ const EIFAdminDashboard = () => {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">EIF Admin Dashboard</h1>
-        <div className="flex gap-2">
+    <div className="p-3 sm:p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">EIF Admin Dashboard</h1>
+        <div className="flex gap-2 w-full sm:w-auto">
           <button
             onClick={() => { setView('dashboard'); setSelectedAccount(null); }}
-            className={`px-4 py-2 rounded-lg RWF{view === 'dashboard' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm sm:text-base ${view === 'dashboard' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
           >
             Dashboard
           </button>
           <button
             onClick={() => { setView('accounts'); setSelectedAccount(null); }}
-            className={`px-4 py-2 rounded-lg RWF{view === 'accounts' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm sm:text-base ${view === 'accounts' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
           >
             Manage Accounts
           </button>
@@ -224,33 +224,33 @@ const EIFAdminDashboard = () => {
 
       {view === 'dashboard' && dashboardStats && (
         <div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-gray-600 text-sm">Total Accounts</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{dashboardStats.total_accounts}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+              <p className="text-xs sm:text-sm text-gray-600">Total Accounts</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{dashboardStats.total_accounts}</p>
             </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-gray-600 text-sm">Active Accounts</p>
-              <p className="text-3xl font-bold text-green-600 mt-2">{dashboardStats.active_accounts}</p>
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+              <p className="text-xs sm:text-sm text-gray-600">Active Accounts</p>
+              <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-2">{dashboardStats.active_accounts}</p>
             </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-gray-600 text-sm">Expired Accounts</p>
-              <p className="text-3xl font-bold text-red-600 mt-2">{dashboardStats.expired_accounts}</p>
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+              <p className="text-xs sm:text-sm text-gray-600">Expired Accounts</p>
+              <p className="text-2xl sm:text-3xl font-bold text-red-600 mt-2">{dashboardStats.expired_accounts}</p>
             </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-gray-600 text-sm">Expiring Soon (7 days)</p>
-              <p className="text-3xl font-bold text-yellow-600 mt-2">{dashboardStats.expiring_soon}</p>
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+              <p className="text-xs sm:text-sm text-gray-600">Expiring Soon (7 days)</p>
+              <p className="text-2xl sm:text-3xl font-bold text-yellow-600 mt-2">{dashboardStats.expiring_soon}</p>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4">Operations Statistics</h2>
-            <p className="text-gray-600">Total Operations: <span className="font-bold">{dashboardStats.total_operations}</span></p>
-            <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold mb-4">Operations Statistics</h2>
+            <p className="text-xs sm:text-sm text-gray-600">Total Operations: <span className="font-bold">{dashboardStats.total_operations}</span></p>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {dashboardStats.operations_by_type?.map(op => (
-                <div key={op.type} className="p-4 bg-gray-50 rounded">
-                  <p className="text-sm text-gray-600">{op.type}</p>
-                  <p className="text-2xl font-bold">{op.count}</p>
-                  <p className="text-sm text-gray-500">Total: RWF{parseFloat(op.total_amount || 0).toFixed(2)}</p>
+                <div key={op.type} className="p-3 sm:p-4 bg-gray-50 rounded">
+                  <p className="text-xs sm:text-sm text-gray-600">{op.type}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{op.count}</p>
+                  <p className="text-xs sm:text-sm text-gray-500">Total: RWF{parseFloat(op.total_amount || 0).toFixed(2)}</p>
                 </div>
               ))}
             </div>
@@ -260,19 +260,19 @@ const EIFAdminDashboard = () => {
 
       {view === 'accounts' && (
         <div>
-          <div className="bg-white rounded-lg shadow p-4 mb-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white rounded-lg shadow p-3 sm:p-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4">
               <input
                 type="text"
                 placeholder="Search accounts..."
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value, page: 1 })}
-                className="px-3 py-2 border rounded-lg"
+                className="px-3 py-2 border rounded-lg text-sm"
               />
               <select
                 value={filters.status}
                 onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
-                className="px-3 py-2 border rounded-lg"
+                className="px-3 py-2 border rounded-lg text-sm"
               >
                 <option value="">All Status</option>
                 <option value="ACTIVE">Active</option>
@@ -281,40 +281,40 @@ const EIFAdminDashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">End Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
+                  <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                  <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">End Date</th>
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {accounts.map(account => (
-                  <tr key={account.id}>
-                    <td className="px-6 py-4 text-sm text-gray-900">{account.owner_name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{account.email}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{account.company_name}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className={`px-2 py-1 rounded text-xs RWF{
+                  <tr key={account.id} className="hover:bg-gray-50">
+                    <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 truncate">{account.owner_name}</td>
+                    <td className="hidden sm:table-cell px-6 py-4 text-xs sm:text-sm text-gray-900 truncate">{account.email}</td>
+                    <td className="hidden md:table-cell px-6 py-4 text-xs sm:text-sm text-gray-900 truncate">{account.company_name}</td>
+                    <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
                         account.subscription_status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
                         {account.subscription_status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className="hidden lg:table-cell px-6 py-4 text-xs sm:text-sm text-gray-900">
                       {account.subscription_end 
                         ? new Date(account.subscription_end).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
                         : 'N/A'}
                     </td>
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm space-x-1 sm:space-x-2">
                       <button
                         onClick={() => { setSelectedAccount(account.id); setView('account-detail'); }}
-                        className="text-purple-600 hover:text-purple-800 mr-2"
+                        className="text-purple-600 hover:text-purple-800 text-xs sm:text-sm block sm:inline"
                       >
                         View
                       </button>
@@ -328,13 +328,13 @@ const EIFAdminDashboard = () => {
                             }
                           });
                         }}
-                        className="text-blue-600 hover:text-blue-800 mr-2"
+                        className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm block sm:inline"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDeleteAccount(account.id)}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 text-xs sm:text-sm block sm:inline"
                       >
                         Delete
                       </button>
@@ -351,41 +351,41 @@ const EIFAdminDashboard = () => {
         <div>
           <button
             onClick={() => { setView('accounts'); setSelectedAccount(null); }}
-            className="mb-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+            className="mb-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm sm:text-base"
           >
             ← Back to Accounts
           </button>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-4">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Account Details</h2>
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Account Details</h2>
               <button
                 onClick={() => setShowEditModal(true)}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors"
+                className="w-full sm:w-auto px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors text-sm sm:text-base"
               >
                 Edit Account
               </button>
             </div>
             {editFormData && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Owner Name</p>
-                    <p className="text-lg font-semibold text-gray-900">{editFormData.owner_name}</p>
+                    <p className="text-base sm:text-lg font-semibold text-gray-900">{editFormData.owner_name}</p>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Email</p>
-                    <p className="text-lg font-semibold text-gray-900">{editFormData.email}</p>
+                    <p className="text-base sm:text-lg font-semibold text-gray-900 break-all">{editFormData.email}</p>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Company</p>
-                    <p className="text-lg font-semibold text-gray-900">{editFormData.company_name}</p>
+                    <p className="text-base sm:text-lg font-semibold text-gray-900">{editFormData.company_name}</p>
                   </div>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Status</p>
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold RWF{
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${
                       editFormData.subscription_status === 'ACTIVE' 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-red-100 text-red-800'
@@ -395,7 +395,7 @@ const EIFAdminDashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Subscription End</p>
-                    <p className="text-lg font-semibold text-gray-900">
+                    <p className="text-base sm:text-lg font-semibold text-gray-900">
                       {editFormData.subscription_end 
                         ? new Date(editFormData.subscription_end).toLocaleDateString('en-US', { 
                             year: 'numeric', 
@@ -407,7 +407,7 @@ const EIFAdminDashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Role</p>
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold RWF{
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${
                       editFormData.role === 'admin' 
                         ? 'bg-purple-100 text-purple-800' 
                         : 'bg-blue-100 text-blue-800'
@@ -418,7 +418,7 @@ const EIFAdminDashboard = () => {
                   {editFormData.country && (
                     <div>
                       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Country</p>
-                      <p className="text-lg font-semibold text-gray-900">{editFormData.country}</p>
+                      <p className="text-base sm:text-lg font-semibold text-gray-900">{editFormData.country}</p>
                     </div>
                   )}
                 </div>
@@ -487,31 +487,31 @@ const EIFAdminDashboard = () => {
               </div>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reference</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reference</th>
+                    <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {accountOperations.map(op => (
-                    <tr key={op.id}>
-                      <td className="px-6 py-4 text-sm">{op.reference || 'N/A'}</td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className={`px-2 py-1 rounded text-xs RWF{
+                    <tr key={op.id} className="hover:bg-gray-50">
+                      <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm truncate">{op.reference || 'N/A'}</td>
+                      <td className="hidden sm:table-cell px-6 py-4 text-xs sm:text-sm">
+                        <span className={`px-2 py-1 rounded text-xs ${
                           op.type === 'IMPORT' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
                         }`}>
                           {op.type}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm">{op.operation_date}</td>
-                      <td className="px-6 py-4 text-sm">RWF{parseFloat(op.total_amount || 0).toFixed(2)}</td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className={`px-2 py-1 rounded text-xs RWF{
+                      <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm">{op.operation_date}</td>
+                      <td className="hidden md:table-cell px-6 py-4 text-xs sm:text-sm">RWF{parseFloat(op.total_amount || 0).toFixed(2)}</td>
+                      <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm">
+                        <span className={`px-2 py-1 rounded text-xs ${
                           op.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                         }`}>
                           {op.status}
@@ -525,31 +525,31 @@ const EIFAdminDashboard = () => {
           </div>
 
           {/* Stock Section */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-xl font-bold mb-4">Stock</h3>
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 overflow-hidden">
+            <h3 className="text-lg sm:text-xl font-bold mb-4">Stock</h3>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit</th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                    <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                    <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {accountStock.length > 0 ? (
                     accountStock.map(item => (
-                      <tr key={item.id}>
-                        <td className="px-6 py-4 text-sm">{item.product_name}</td>
-                        <td className="px-6 py-4 text-sm">{item.category_name || 'N/A'}</td>
-                        <td className="px-6 py-4 text-sm">{parseFloat(item.quantity || 0).toFixed(2)}</td>
-                        <td className="px-6 py-4 text-sm">{item.unit || 'N/A'}</td>
+                      <tr key={item.id} className="hover:bg-gray-50">
+                        <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm truncate">{item.product_name}</td>
+                        <td className="hidden sm:table-cell px-6 py-4 text-xs sm:text-sm">{item.category_name || 'N/A'}</td>
+                        <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm">{parseFloat(item.quantity || 0).toFixed(2)}</td>
+                        <td className="hidden md:table-cell px-6 py-4 text-xs sm:text-sm">{item.unit || 'N/A'}</td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="px-6 py-4 text-sm text-center text-gray-500">No stock found</td>
+                      <td colSpan="4" className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-center text-gray-500">No stock found</td>
                     </tr>
                   )}
                 </tbody>
@@ -561,51 +561,51 @@ const EIFAdminDashboard = () => {
 
       {/* Edit Modal */}
       {showEditModal && editFormData && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
-            <h2 className="text-2xl font-bold mb-4">Edit Account</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4">Edit Account</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Subscription Status</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Subscription Status</label>
                 <select
                   value={editFormData.subscription_status || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, subscription_status: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border rounded-lg text-sm"
                 >
                   <option value="ACTIVE">ACTIVE</option>
                   <option value="EXPIRED">EXPIRED</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Subscription End Date</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Subscription End Date</label>
                 <input
                   type="date"
                   value={editFormData.subscription_end || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, subscription_end: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border rounded-lg text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Role</label>
                 <select
                   value={editFormData.role || 'staff'}
                   onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border rounded-lg text-sm"
                 >
                   <option value="staff">Staff</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   onClick={handleUpdateAccount}
-                  className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700"
+                  className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 text-sm sm:text-base font-medium"
                 >
                   Save
                 </button>
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 text-sm sm:text-base font-medium"
                 >
                   Cancel
                 </button>

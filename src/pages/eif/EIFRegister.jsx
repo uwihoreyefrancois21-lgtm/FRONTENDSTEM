@@ -21,9 +21,9 @@ const EIFRegister = () => {
     e.preventDefault();
     setError('');
 
-    // Validate phone number
-    if (!/^\d{10}$/.test(formData.phone)) {
-      setError('Phone number must be exactly 10 digits');
+    // Validate phone number - must be 10 digits starting with 07
+    if (!/^07\d{8}$/.test(formData.phone)) {
+      setError('Phone number must start with 07 and be exactly 10 digits');
       return;
     }
 
@@ -132,7 +132,7 @@ const EIFRegister = () => {
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
               <div className="flex items-center gap-2">
                 <FaPhone size={16} className="text-purple-600" />
-                Phone Number * (10 digits)
+                Phone Number * (Must start with 07)
               </div>
             </label>
             <input
@@ -141,11 +141,11 @@ const EIFRegister = () => {
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-              placeholder="07"
+              placeholder="07XXXXXXXX"
               required
               maxLength="10"
             />
-            <p className="text-xs text-gray-500 mt-1">Enter a valid 10-digit phone number</p>
+            <p className="text-xs text-gray-500 mt-1">Enter 10-digit phone number starting with 07 (e.g., 0782345678)</p>
           </div>
 
           <button

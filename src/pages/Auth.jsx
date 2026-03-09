@@ -140,8 +140,8 @@ const Auth = () => {
     setError({ ...error, EIF: '' });
 
     // Validate phone number
-    if (!/^\d{10}$/.test(eifFormData.phone)) {
-      setError({ ...error, EIF: 'Phone number must be exactly 10 digits' });
+    if (!/^07\d{8}$/.test(eifFormData.phone)) {
+      setError({ ...error, EIF: 'Phone number must start with 07 and be exactly 10 digits' });
       return;
     }
 
@@ -596,7 +596,7 @@ const Auth = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         <div className="flex items-center gap-2">
                           <FaPhone size={14} className="text-purple-600" />
-                          Phone Number * (10 digits)
+                          Phone Number * (Must start with 07)
                         </div>
                       </label>
                       <input
@@ -604,11 +604,11 @@ const Auth = () => {
                         value={eifFormData.phone}
                         onChange={(e) => setEifFormData({ ...eifFormData, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                        placeholder="1234567890"
+                        placeholder="07XXXXXXXX"
                         maxLength="10"
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">Enter a valid 10-digit phone number</p>
+                      <p className="text-xs text-gray-500 mt-1">Enter 10-digit phone number starting with 07 (e.g., 0712345678)</p>
                     </div>
                     <button
                       type="submit"

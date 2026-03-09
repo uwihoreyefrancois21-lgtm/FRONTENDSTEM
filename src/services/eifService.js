@@ -82,6 +82,8 @@ export const eifAdminGetAccounts = (params) => api.get('/eif/admin/accounts', { 
 export const eifAdminGetAccount = (id) => api.get(`/eif/admin/accounts/${id}`);
 export const eifAdminUpdateAccount = (id, data) => api.put(`/eif/admin/accounts/${id}`, data);
 export const eifAdminDeleteAccount = (id) => api.delete(`/eif/admin/accounts/${id}`);
+export const eifAdminActivateAccount = (id) => api.post(`/eif/admin/accounts/${id}/activate`);
+export const eifAdminDeactivateAccount = (id) => api.post(`/eif/admin/accounts/${id}/deactivate`);
 export const eifAdminGetAccountOperations = (id, params) => api.get(`/eif/admin/accounts/${id}/operations`, { params });
 export const eifAdminGetAccountStock = (id) => api.get(`/eif/admin/accounts/${id}/stock`);
 export const eifAdminDeleteAccountStock = (accountId, productId) => api.delete(`/eif/admin/accounts/${accountId}/stock/${productId}`);

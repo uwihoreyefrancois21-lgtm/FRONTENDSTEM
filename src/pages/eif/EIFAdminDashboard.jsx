@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../contexts/AuthContext';
 import {
+    eifAdminActivateAccount,
+    eifAdminDeactivateAccount,
     eifAdminDeleteAccount,
     eifAdminGetAccount,
     eifAdminGetAccountOperations,
@@ -152,6 +154,34 @@ const EIFAdminDashboard = () => {
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to delete account');
+    }
+  };
+
+  const handleActivateAccount = async () => {
+    try {
+      const res = await eifAdminActivateAccount(selectedAccount);
+      if (res.success) {
+        toast.success('Account activated successfully');
+        setEditFormData(res.data);
+        fetchAccountDetails();
+        fetchAccounts();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to activate account');
+    }
+  };
+
+  const handleDeactivateAccount = async () => {
+    try {
+      const res = await eifAdminDeactivateAccount(selectedAccount);
+      if (res.success) {
+        toast.success('Account deactivated successfully');
+        setEditFormData(res.data);
+        fetchAccountDetails();
+        fetchAccounts();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to deactivate account');
     }
   };
 
@@ -415,12 +445,16 @@ const EIFAdminDashboard = () => {
                       {editFormData.role || 'staff'}
                     </span>
                   </div>
-                  {editFormData.country && (
-                    <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Country</p>
-                      <p className="text-base sm:text-lg font-semibold text-gray-900">{editFormData.country}</p>
-                    </div>
-                  )}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Account Status</p>
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${
+                      editFormData.approval_status === 'ACTIVE' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {editFormData.approval_status || 'INACTIVE'}
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
@@ -595,6 +629,36 @@ const EIFAdminDashboard = () => {
                   <option value="staff">Staff</option>
                   <option value="admin">Admin</option>
                 </select>
+              </div>
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Account Approval Status</label>
+                <div className="flex items-center gap-2">
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${
+                    editFormData.approval_status === 'ACTIVE' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {editFormData.approval_status || 'INACTIVE'}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2">
+                {editFormData.approval_status !== 'ACTIVE' && (
+                  <button
+                    onClick={handleActivateAccount}
+                    className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 text-sm sm:text-base font-medium"
+                  >
+                    Activate Account
+                  </button>
+                )}
+                {editFormData.approval_status === 'ACTIVE' && (
+                  <button
+                    onClick={handleDeactivateAccount}
+                    className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 text-sm sm:text-base font-medium"
+                  >
+                    Deactivate Account
+                  </button>
+                )}
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <button

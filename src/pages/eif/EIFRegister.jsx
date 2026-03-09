@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { FaEye, FaEyeSlash, FaPhone } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import { eifRegister } from '../../services/eifService';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { eifRegister } from '../../services/eifService';
 
 const EIFRegister = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +10,7 @@ const EIFRegister = () => {
     email: '',
     password: '',
     company_name: '',
-    country: '',
+    phone: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -20,16 +20,22 @@ const EIFRegister = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Validate phone number
+    if (!/^\d{10}$/.test(formData.phone)) {
+      setError('Phone number must be exactly 10 digits');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const response = await eifRegister(formData);
       if (response.success) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.account));
-        localStorage.setItem('system', 'eif');
-        toast.success('Registration successful!');
-        navigate('/eif/dashboard');
+        toast.success('Registration successful! Please login to continue.');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       } else {
         setError(response.message || 'Registration failed');
       }
@@ -123,16 +129,23 @@ const EIFRegister = () => {
           </div>
 
           <div>
-            <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-2">
-              Country
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="flex items-center gap-2">
+                <FaPhone size={16} className="text-purple-600" />
+                Phone Number * (10 digits)
+              </div>
             </label>
             <input
-              type="text"
-              id="country"
-              value={formData.country}
-              onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              type="tel"
+              id="phone"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+              placeholder="07"
+              required
+              maxLength="10"
             />
+            <p className="text-xs text-gray-500 mt-1">Enter a valid 10-digit phone number</p>
           </div>
 
           <button

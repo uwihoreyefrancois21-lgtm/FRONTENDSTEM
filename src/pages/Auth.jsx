@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { FaBars, FaEye, FaEyeSlash, FaPhone, FaTimes } from 'react-icons/fa';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { eifLogin, eifRegister } from '../services/eifService';
-import { authService } from '../services/authService';
-import { validateEmail, validatePassword, validatePhone } from '../utils/validation';
-import { FaEye, FaEyeSlash, FaBars, FaTimes, FaHome, FaDollarSign, FaInfoCircle, FaChartLine } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { useAuth } from '../contexts/AuthContext';
+import { authService } from '../services/authService';
+import { eifLogin, eifRegister } from '../services/eifService';
+import { validateEmail, validatePassword, validatePhone } from '../utils/validation';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -30,7 +30,7 @@ const Auth = () => {
     password: '',
     owner_name: '',
     company_name: '',
-    country: ''
+    phone: ''
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -43,6 +43,12 @@ const Auth = () => {
       setActiveSystem(systemParam);
     }
   }, [systemParam]);
+
+  // Handle system switch and update URL
+  const switchSystem = (system) => {
+    setActiveSystem(system);
+    window.history.pushState(null, '', `?system=${system}`);
+  };
 
   // SPEMS Login Handler
   const handleSpemsLogin = async (e) => {
@@ -132,6 +138,13 @@ const Auth = () => {
   const handleEifRegister = async (e) => {
     e.preventDefault();
     setError({ ...error, EIF: '' });
+
+    // Validate phone number
+    if (!/^\d{10}$/.test(eifFormData.phone)) {
+      setError({ ...error, EIF: 'Phone number must be exactly 10 digits' });
+      return;
+    }
+
     setLoading({ ...loading, EIF: true });
 
     try {
@@ -140,15 +153,13 @@ const Auth = () => {
         email: eifFormData.email,
         password: eifFormData.password,
         company_name: eifFormData.company_name,
-        country: eifFormData.country
+        phone: eifFormData.phone
       });
 
       if (response.success) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.account));
-        localStorage.setItem('system', 'eif');
-        toast.success('Registration successful!');
-        navigate('/eif/dashboard');
+        toast.success('Registration successful! Please login to continue.');
+        setIsLogin(true);
+        setEifFormData({ email: '', password: '', owner_name: '', company_name: '', phone: '' });
       } else {
         setError({ ...error, EIF: response.message || 'Registration failed' });
       }
@@ -296,7 +307,7 @@ const Auth = () => {
           <div className="flex justify-center mb-8">
             <div className="bg-white rounded-lg shadow-md p-1 inline-flex">
               <button
-                onClick={() => setActiveSystem('SPEMS')}
+                onClick={() => switchSystem('SPEMS')}
                 className={`px-6 py-3 rounded-md font-semibold transition-all ${
                   activeSystem === 'SPEMS'
                     ? 'bg-blue-600 text-white shadow-md'
@@ -306,7 +317,7 @@ const Auth = () => {
                 <span className="text-2xl mr-2">📊</span> SPEMS
               </button>
               <button
-                onClick={() => setActiveSystem('EIF')}
+                onClick={() => switchSystem('EIF')}
                 className={`px-6 py-3 rounded-md font-semibold transition-all ${
                   activeSystem === 'EIF'
                     ? 'bg-purple-600 text-white shadow-md'
@@ -582,13 +593,22 @@ const Auth = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <div className="flex items-center gap-2">
+                          <FaPhone size={14} className="text-purple-600" />
+                          Phone Number * (10 digits)
+                        </div>
+                      </label>
                       <input
-                        type="text"
-                        value={eifFormData.country}
-                        onChange={(e) => setEifFormData({ ...eifFormData, country: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        type="tel"
+                        value={eifFormData.phone}
+                        onChange={(e) => setEifFormData({ ...eifFormData, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                        placeholder="1234567890"
+                        maxLength="10"
+                        required
                       />
+                      <p className="text-xs text-gray-500 mt-1">Enter a valid 10-digit phone number</p>
                     </div>
                     <button
                       type="submit"

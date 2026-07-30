@@ -1,53 +1,48 @@
-// Password strength validation
-export const validatePassword = (password) => {
-  const minLength = password.length >= 8;
-  const hasUpperCase = /[A-Z]/.test(password);
-  const hasLowerCase = /[a-z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
-  const strength = [minLength, hasUpperCase, hasLowerCase, hasNumber, hasSpecialChar].filter(Boolean).length;
-  
-  return {
-    isValid: minLength && hasUpperCase && hasLowerCase && hasNumber,
-    strength,
-    requirements: {
-      minLength,
-      hasUpperCase,
-      hasLowerCase,
-      hasNumber,
-      hasSpecialChar,
-    },
-    message: getPasswordMessage(strength, {
-      minLength,
-      hasUpperCase,
-      hasLowerCase,
-      hasNumber,
-      hasSpecialChar,
-    })
-  };
-};
-
-const getPasswordMessage = (strength, requirements) => {
-  if (strength === 0) return 'Very Weak';
-  if (strength === 1) return 'Weak';
-  if (strength === 2) return 'Fair';
-  if (strength === 3) return 'Good';
-  if (strength === 4) return 'Strong';
-  if (strength === 5) return 'Very Strong';
-  
-  return '';
-};
-
-// Email validation
 export const validateEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return { valid: re.test(email), message: 'Please enter a valid email address' };
 };
 
-// Phone validation
+export const validatePassword = (password) => {
+  const valid = password && password.length >= 6;
+  return { valid, message: 'Password must be at least 6 characters long' };
+};
+
+export const validateRequired = (value, fieldName) => {
+  const valid = value && value.trim() !== '';
+  return { valid, message: `${fieldName} is required` };
+};
+
 export const validatePhone = (phone) => {
-  const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
-  return phoneRegex.test(phone);
+  if (!phone) return { valid: true };
+  const re = /^[+]?[0-9]{8,}$/;
+  return { valid: re.test(phone), message: 'Please enter a valid phone number' };
 };
 
+export const validateConfirmPassword = (password, confirmPassword) => {
+  const valid = password === confirmPassword;
+  return { valid, message: 'Passwords do not match' };
+};
+
+export const getErrorMessage = (error) => {
+  if (!error) return 'An unexpected error occurred';
+  
+  // Network error
+  if (!error.response) {
+    return error.message || 'Network error: Check your internet connection and try again';
+  }
+  
+  // Server error with message
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+  
+  // Invalid credentials
+  if (error.response?.status === 401) {
+    return 'Invalid email or password';
+  }
+  
+  // Default server error
+  return `Error: ${error.response?.statusText || 'Something went wrong'}`;
+};
